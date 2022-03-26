@@ -1,7 +1,8 @@
-import { VaultDTO } from "@badger-dao/sdk";
+import { Network, VaultDTO } from "@badger-dao/sdk";
 
 export interface NetworkSummary {
-  vaults: VaultDTO[];
-  tvl: number;
   name: string;
+  network: Network;
+  tvl: number;
+  vaults: VaultDTO[];
 }

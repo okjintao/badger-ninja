@@ -1,5 +1,6 @@
 import { BadgerAPI, Currency, Network, VaultState } from "@badger-dao/sdk";
 import { GetStaticPropsResult } from "next";
+import Link from "next/link";
 import VaultItem from "../components/VaultItem";
 import { NetworkSummary } from "../interfaces/network-summary.interface";
 
@@ -22,10 +23,17 @@ function Landing({ networks }: LandingProps): JSX.Element {
     <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto">
       <div className="text-mint font-semibold text-xl leading-tight tracking-tight p-2 mt-4 text-center">{headerDisplay}</div>
       {networksByTVL.filter((n) => n.tvl > 0).map((n) => (
-          <div className="grid w-full">
+          <div className="grid w-full" key={n.network}>
             <div className="text-lg ml-2">{n.name}</div>
             <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5">
-              {n.vaults.sort((a, b) => b.value - a.value).map((v) => <VaultItem vault={v} />)}
+              {n.vaults.sort((a, b) => b.value - a.value).map((v) => {
+                const href = `/vault/${n.network}/${v.vaultToken}`;
+                return (
+                  <Link href={href} key={href} passHref>
+                    <a href={href}><VaultItem vault={v} /></a>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -42,6 +50,7 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<{ networks:
       vaults: [],
       tvl: 0,
       name: networkName,
+      network: n,
     };
     return [n, summary];
   }));
