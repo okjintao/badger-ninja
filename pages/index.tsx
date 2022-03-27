@@ -22,7 +22,7 @@ function Landing({ networks }: LandingProps): JSX.Element {
   return (    
     <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto">
       <div className="text-mint font-semibold text-xl leading-tight tracking-tight p-2 mt-4 text-center">{headerDisplay}</div>
-      {networksByTVL.filter((n) => n.tvl > 0).map((n) => (
+      {networksByTVL.filter((n) => n.tvl > 0 && n.vaults.length > 0).map((n) => (
           <div className="grid w-full" key={n.network}>
             <div className="text-lg ml-2">{n.name}</div>
             <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4">
