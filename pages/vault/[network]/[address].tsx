@@ -1,19 +1,23 @@
-import { BadgerAPI, ChartGranularity, Currency, Network, VaultDTO, VaultSnapshot } from "@badger-dao/sdk";
+import { BadgerAPI, BadgerGraph, ChartGranularity, Currency, EmissionSchedule, formatBalance, Network, VaultDTO, VaultSnapshot, VaultVersion } from "@badger-dao/sdk";
 import { GetStaticPathsResult, GetStaticPropsContext, GetStaticPropsResult } from "next";
 import VaultStatistic from "../../../components/VaultStatistic";
 import { Area, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { timeFormat } from 'd3-time-format';
 import { format } from 'd3-format';
+import { OrderDirection, Transfer_OrderBy } from "@badger-dao/sdk/lib/graphql/generated/badger";
+import { VaultTransfer } from "../../../interfaces/vault-transfer.interface";
 
 interface Props {
   vault: VaultDTO;
   chartData: VaultSnapshot[];
+  schedules: EmissionSchedule[];
+  transfers: VaultTransfer[];
 }
 
 type VaultPathParms = { network: string, address: string };
 
-function VaultInformation({ vault, chartData }: Props): JSX.Element {
-  const { name, value, pricePerFullShare, vaultAsset, asset, balance, available, lastHarvest, version, protocol, underlyingToken, vaultToken, strategy } = vault;
+function VaultInformation({ vault, chartData, schedules, transfers }: Props): JSX.Element {
+  const { name, value, pricePerFullShare, vaultAsset, asset, balance, available, lastHarvest, version, protocol, underlyingToken, vaultToken, strategy, minApy, maxApy, apy } = vault;
   const { address: strategyAddress, performanceFee, strategistFee, withdrawFee } = strategy;
   const shortenAddress = (address: string) => address.slice(0, 4).concat('...').concat(address.slice(address.length - 4));
   const toExplorerLink = (address: string) => `https://etherscan.io/address/${address}`;
@@ -46,6 +50,54 @@ function VaultInformation({ vault, chartData }: Props): JSX.Element {
     }
   }
 
+  let minYield = Number.MAX_VALUE;
+  let maxYield = Number.MIN_VALUE;
+
+  chartData.forEach((d) => {
+    if (d.apr < minYield) {
+      minYield = d.apr;
+    }
+    if (d.apr > maxYield) {
+      maxYield = d.apr;
+    }
+    if (version === VaultVersion.v1_5) {
+      if (d.yieldApr < minYield) {
+        minYield = d.yieldApr;
+      }
+      if (d.harvestApr < minYield) {
+        minYield = d.harvestApr;
+      }
+      if (d.yieldApr > maxYield) {
+        maxYield = d.yieldApr;
+      }
+      if (d.harvestApr > maxYield) {
+        maxYield = d.harvestApr;
+      }
+    }
+  });
+
+  const toAprRange = (apy: number, minApy?: number, maxApy?: number) => (minApy && maxApy && minApy !== maxApy) ? `${minApy.toFixed(2)}% - ${maxApy.toFixed(2)}%` : `${apy.toFixed(2)}%`;
+  const currentYieldDisplay = toAprRange(apy, minApy, maxApy);
+
+  let yieldDisplay: React.ReactNode;
+  if (vault.sourcesApy.length > 0) {
+    yieldDisplay = vault.sourcesApy.map((s) => <VaultStatistic title={s.name} value={toAprRange(s.apr, s.minApr, s.maxApr)} />)
+  } else {
+    yieldDisplay = <div className="text-sm mt-4 text-gray-300">{vault.name} has no recorded yield sources.</div>
+  }
+
+  let emissionDisplay: React.ReactNode;
+  if (schedules.length > 0) {
+    emissionDisplay = schedules.map((s) => {
+      const title = `${s.token} (${s.compPercent}% complete)`;
+      const start = new Date(s.start * 1000).toLocaleDateString();
+      const end = new Date(s.end * 1000).toLocaleDateString();
+      return <VaultStatistic title={title} value={s.amount} subtext={`${start} - ${end}`} />;
+    });
+  } else {
+    emissionDisplay = <div className="text-sm mt-4 text-gray-300">{vault.name} has no active emission schedules.</div>
+  }
+
   return (
     <div className="flex flex-grow flex-col w-full md:w-5/6 text-gray-300 pb-10 mx-auto">
       <div className="bg-calm mt-4 md:mt-8 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
@@ -67,19 +119,69 @@ function VaultInformation({ vault, chartData }: Props): JSX.Element {
         </div>
       </div>
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
+        <div className="text-sm text-gray-400">Vault History</div>
         <ResponsiveContainer height={350}>
           <ComposedChart data={chartData}>
             <Legend formatter={legendFormatter}/>
             <Tooltip formatter={tooltipFormatter} labelFormatter={timeFormat('%B %d, %Y')}/>
             <XAxis dataKey="timestamp" type="number" domain={['dataMin', 'dataMax']} tickFormatter={timeFormat('%m-%d')} tickLine={false} axisLine={false} style={{ fill: 'white' }} tickCount={10} />
             <YAxis dataKey="value" yAxisId="value" axisLine={false} tickLine={false} type="number" domain={['auto', 'auto']} tickCount={10} minTickGap={50} tickFormatter={valueFormatter} style={{ fill: 'white' }} />
-            <YAxis dataKey="apr" yAxisId="apr" orientation="right" axisLine={false} tickLine={false} type="number" domain={['auto', 'auto']} tickCount={10} minTickGap={50} tickFormatter={(v: number) => `${v.toFixed(1)}%`} style={{ fill: 'white' }} />
+            <YAxis dataKey="apr" yAxisId="yieldApr" orientation="right" axisLine={false} tickLine={false} type="number" domain={[minYield * 0.95, maxYield * 1.05]} tickCount={10} minTickGap={50} tickFormatter={(v: number) => `${v.toFixed(1)}%`} style={{ fill: 'white' }} />
             <Area type="monotone" dataKey="value" fill="#707793" stroke="#707793" yAxisId="value" />
-            <Line type="monotone" dataKey="apr" fill="#292929" stroke="#292929"  yAxisId="apr" />
-            <Line type="monotone" dataKey="harvestApr" fill="#3bba9c" stroke="#3bba9c"  yAxisId="apr" />
-            <Line type="monotone" dataKey="yieldApr" fill="#2e3047" stroke="#2e3047"  yAxisId="apr" />
+            <Line type="monotone" dataKey="apr" fill="#292929" stroke="#292929"  yAxisId="yieldApr" />
+            {version === VaultVersion.v1_5 &&
+              <>
+                <Line type="monotone" dataKey="harvestApr" fill="#3bba9c" stroke="#3bba9c"  yAxisId="yieldApr" />
+                <Line type="monotone" dataKey="yieldApr" fill="#2e3047" stroke="#2e3047"  yAxisId="yieldApr" />
+              </>
+            }
           </ComposedChart>
         </ResponsiveContainer>
+      </div>
+      <div className="mt-4 mx-2 md:mx-0 grid grid-cols-1 md:grid-cols-2">
+        <div className="bg-calm p-3 md:mr-2 rounded-lg">
+          <div className="text-sm text-gray-400">Vault APR Sources</div>
+          <div className="text-xl font-semibold text-white">{currentYieldDisplay}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {yieldDisplay}
+          </div>
+        </div>
+        <div className="bg-calm p-3 md:ml-2 rounded-lg">
+          <div className="text-sm text-gray-400">Vault Emissions</div>
+          <div className="text-xl font-semibold text-white">{schedules.length} Active Schedules</div>
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {emissionDisplay}
+          </div>
+        </div>
+      </div>
+      {version === VaultVersion.v1_5 && 
+        <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
+          <div className="text-sm text-gray-400">Vault Harvest Health</div>
+        </div>
+      }
+      <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
+        <div className="text-sm text-gray-400">Vault Harvest History</div>
+      </div>
+      <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
+        <div className="text-sm text-gray-400">Vault User History</div>
+        <div className="mt-2 mx-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-1">
+            <span>Date</span>
+            <span>Action</span>
+            <span>Amount</span>
+            <span>Transaction</span>
+          </div>
+          {transfers.map((t, i) => {
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-2 rounded-lg">
+                <span>{t.date}</span>
+                <span>{t.transferType}</span>
+                <span>{t.amount.toFixed(5)}</span>
+                <span className="text-mint"><a href={`https://etherscan.io/tx/${t.hash}`} target="_blank">View</a></span>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   );
@@ -93,17 +195,43 @@ export async function getStaticProps({ params }: GetStaticPropsContext<VaultPath
 
   const { network, address } = params;
   const api = new BadgerAPI({ network });
+  const tokens = await api.loadTokens();
   const vault = await api.loadVault(address);
 
   const end = new Date();
   const start = new Date();
   start.setDate(start.getDate() - 30);
   const chartData = await api.loadCharts({ vault: address, start: start.toISOString(), end: end.toISOString(), granularity: ChartGranularity.DAY });
+  const schedules = await api.loadSchedule(address, true);
+  schedules.forEach((s) => s.token = tokens[s.token].name);
+
+  const graph = new BadgerGraph({ network });
+  const { transfers } = await graph.loadTransfers({
+    where: {
+      sett: address.toLowerCase(),
+    },
+    orderBy: Transfer_OrderBy.Timestamp,
+    orderDirection: OrderDirection.Desc,
+    first: 25,
+  });
+  const vaultTransfers = transfers.map((t) => {
+    const transferType = Number(t.to.id) === 0 ? 'Withdraw' : Number(t.from.id) === 0 ? 'Deposit' : 'Transfer';
+    return {
+      from: t.from.id,
+      to: t.to.id,
+      amount: formatBalance(t.amount, tokens[address].decimals),
+      date: new Date(t.timestamp * 1000).toISOString(),
+      transferType,
+      hash: t.id.split('-')[0],
+    };
+  });
 
   return {
     props: {
       vault,
       chartData,
+      schedules,
+      transfers: vaultTransfers,
     }
   };
 }

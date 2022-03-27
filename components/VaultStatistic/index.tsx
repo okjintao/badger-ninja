@@ -2,9 +2,10 @@ interface Props {
   title: string;
   value: string | number | boolean;
   link?: string;
+  subtext?: string;
 }
 
-function VaultStatistic({ title, value, link }: Props): JSX.Element {
+function VaultStatistic({ title, value, link, subtext }: Props): JSX.Element {
   return (
     <>
       <div className="flex-col">
@@ -18,6 +19,10 @@ function VaultStatistic({ title, value, link }: Props): JSX.Element {
         }}>
           {value}
         </div>
+        {subtext && 
+        <div className="text-xs text-gray-300">
+          {subtext}
+        </div>}
       </div>
     </>
   )
