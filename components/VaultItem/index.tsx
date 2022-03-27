@@ -26,8 +26,8 @@ function VaultItem({ vault }: Props): JSX.Element {
         <div className="text-sm">{protocol}</div>
       </div>
       <div className="flex justify-between">
-      <div className="text-sm">${value.toLocaleString()}</div>
-      <div className="text-sm">{yieldDisplay}</div>
+        <div className="text-sm">${value.toLocaleString()}</div>
+        <div className="text-sm">{yieldDisplay}</div>
       </div>
       <div className="flex justify-between items-end">
         {lastHarvest > 0 && 

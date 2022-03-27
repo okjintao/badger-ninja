@@ -8,10 +8,25 @@ interface Props {
 type VaultPathParms = { network: string, address: string };
 
 function VaultInformation({ vault }: Props): JSX.Element {
-  const { name } = vault;
+  const { name, value } = vault;
   return (
-    <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto">
-      <span>{name}</span>
+    <div className="flex flex-grow flex-col w-full md:w-5/6 text-white pb-10 mx-auto">
+      <div className="bg-calm mt-2 md:mt-8 p-2 md:p-4 rounded-lg">
+        <div className="text-sm">Vault Information</div>
+        <div className="text-3xl font-semibold text-mint">{name} - ${value.toLocaleString()}</div>
+        <div className="flex">
+          <div className="w-full lg:w-1/4">
+            <div className="flex md:flex-col">
+              <div className="text-deepsea">
+                pricePerFullShare
+              </div>
+            </div>
+          </div>
+          <div className="w-full lg:w-3/4">
+            
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -38,12 +53,14 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult<VaultPathPa
 
   let paths: { params: VaultPathParms }[] = [];
 
-  for (const network of Object.keys(Network)) {
+  for (const network of Object.entries(Network)) {
     try {
-      const networkVaults = await api.loadVaults(Currency.USD, network as Network);
-      const pathParams = networkVaults.map((v) => ({ params: { address: v.vaultToken, network } }));
+      const [_key, value] = network;
+      const networkVaults = await api.loadVaults(Currency.USD, value);
+      const pathParams = networkVaults.map((v) => ({ params: { address: v.vaultToken, network: value } }));
       paths = paths.concat(pathParams);
-    } catch {} // some network are not supported
+    } catch {
+    } // some network are not supported
   }
 
   return {

@@ -25,12 +25,12 @@ function Landing({ networks }: LandingProps): JSX.Element {
       {networksByTVL.filter((n) => n.tvl > 0).map((n) => (
           <div className="grid w-full" key={n.network}>
             <div className="text-lg ml-2">{n.name}</div>
-            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4">
               {n.vaults.sort((a, b) => b.value - a.value).map((v) => {
                 const href = `/vault/${n.network}/${v.vaultToken}`;
                 return (
                   <Link href={href} key={href} passHref>
-                    <a href={href}><VaultItem vault={v} /></a>
+                    <a><VaultItem vault={v} /></a>
                   </Link>
                 );
               })}
