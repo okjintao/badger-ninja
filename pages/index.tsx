@@ -4,11 +4,11 @@ import Link from "next/link";
 import VaultItem from "../components/VaultItem";
 import { NetworkSummary } from "../interfaces/network-summary.interface";
 
-interface LandingProps {
-  networks: Record<Network, NetworkSummary>;
+interface Props {
+  networks: Record<string, NetworkSummary>;
 }
 
-function Landing({ networks }: LandingProps): JSX.Element {
+function Landing({ networks }: Props): JSX.Element {
   const allNetworks = Object.values(networks).filter((n) => n.tvl > 0);
   const allVaults = allNetworks.flatMap((v) => v.vaults);
   const totalVaults = allVaults.length;
@@ -41,7 +41,7 @@ function Landing({ networks }: LandingProps): JSX.Element {
   );
 }
 
-export async function getStaticProps(): Promise<GetStaticPropsResult<{ networks: Record<string, NetworkSummary> }>> {
+export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
   const api = new BadgerAPI({ network: 1 });
 
   const networks = Object.fromEntries(Object.values(Network).map((n) => {
@@ -51,6 +51,8 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<{ networks:
       tvl: 0,
       name: networkName,
       network: n,
+      tokens: {},
+      prices: {},
     };
     return [n, summary];
   }));
@@ -60,6 +62,8 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<{ networks:
       const networkVaults = await api.loadVaults(Currency.USD, network);
       networks[network].vaults = networkVaults.filter((v) => v.state !== VaultState.Deprecated);
       networks[network].tvl = networkVaults.reduce((total, v) => total += v.value, 0);
+      networks[network].tokens = await api.loadTokens();
+      networks[network].prices = await api.loadPrices(Currency.USD, network);
     } catch {} // some network are not supported
   }
 

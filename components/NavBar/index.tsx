@@ -10,6 +10,7 @@ function NavBar(): JSX.Element {
         </div>
         <NavLink href="/" text="Overview" />
         <NavLink href="/rewards" text="Rewards" />
+        <NavLink href="/tokens" text="Tokens" />
       </div>
     </div>
   );
