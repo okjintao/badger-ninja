@@ -73,6 +73,7 @@ function VaultInformation({
     performanceFee,
     strategistFee,
     withdrawFee,
+    aumFee,
   } = strategy;
   const {
     harvestValue,
@@ -200,13 +201,13 @@ function VaultInformation({
         <div className="text-3xl font-semibold text-white">
           {name} - ${value.toLocaleString()}
         </div>
+        <div className="text-xs text-gray-400">{version}</div>
         <div className="mt-4 mb-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          <VaultStatistic title="Version" value={version} />
+          <VaultStatistic title="Protocol" value={protocol} />
           <VaultStatistic
             title="Last Harvest"
             value={new Date(lastHarvest * 1000).toLocaleString()}
           />
-          <VaultStatistic title="Protocol" value={protocol} />
           <VaultStatistic
             title={`${asset} per ${vaultAsset}`}
             value={pricePerFullShare}
@@ -239,6 +240,10 @@ function VaultInformation({
           <VaultStatistic
             title="Withdraw Fee"
             value={toReadableFee(withdrawFee)}
+          />
+          <VaultStatistic
+            title="Management Fee"
+            value={toReadableFee(aumFee)}
           />
         </div>
       </div>
@@ -344,14 +349,14 @@ function VaultInformation({
           <div className="text-sm text-gray-400">Vault Harvest Health</div>
           <div
             className={`text-xl ${
-              realizedHarvestPercent > 97.5
+              realizedHarvestPercent > 95
                 ? 'text-green-400'
-                : realizedHarvestPercent > 95
+                : realizedHarvestPercent > 90
                 ? 'text-orange-400'
                 : 'text-red-400'
             }`}
           >
-            {realizedHarvestPercent}% Realized Yield
+            {realizedHarvestPercent.toFixed(2)}% Realized Yield
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 mt-3">
             <div className="flex flex-col">
@@ -361,6 +366,7 @@ function VaultInformation({
               <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
                 {yieldTokens.map((t) => (
                   <VaultStatistic
+                    key={`yield-${t.address}`}
                     title={t.symbol}
                     value={t.balance}
                     subtext={
@@ -380,6 +386,7 @@ function VaultInformation({
               <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
                 {harvestTokens.map((t) => (
                   <VaultStatistic
+                    key={`harvest-${t.address}`}
                     title={t.symbol}
                     value={t.balance}
                     subtext={
