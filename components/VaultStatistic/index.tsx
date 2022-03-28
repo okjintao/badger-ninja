@@ -1,6 +1,8 @@
+import React from "react";
+
 interface Props {
-  title: string;
-  value: string | number | boolean;
+  title: string | React.ReactNode;
+  value: string | number | boolean | React.ReactNode;
   link?: string;
   subtext?: string;
 }

@@ -103,7 +103,7 @@ function VaultInformation({ vault, chartData, schedules, transfers }: Props): JS
       <div className="bg-calm mt-4 md:mt-8 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault Information</div>
         <div className="text-3xl font-semibold text-white">{name} - ${value.toLocaleString()}</div>
-        <div className="mt-4 mb-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 mb-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <VaultStatistic title="Version" value={version} />
           <VaultStatistic title="Last Harvest" value={new Date(lastHarvest * 1000).toLocaleString()} />
           <VaultStatistic title="Protocol" value={protocol} />
@@ -146,7 +146,7 @@ function VaultInformation({ vault, chartData, schedules, transfers }: Props): JS
             {yieldDisplay}
           </div>
         </div>
-        <div className="bg-calm p-3 md:ml-2 rounded-lg">
+        <div className="bg-calm p-3 md:ml-2 rounded-lg mt-4 md:mt-0">
           <div className="text-sm text-gray-400">Vault Emissions</div>
           <div className="text-xl font-semibold text-white">{schedules.length} Active Schedules</div>
           <div className="grid grid-cols-1 md:grid-cols-2">
@@ -220,7 +220,7 @@ export async function getStaticProps({ params }: GetStaticPropsContext<VaultPath
       from: t.from.id,
       to: t.to.id,
       amount: formatBalance(t.amount, tokens[address].decimals),
-      date: new Date(t.timestamp * 1000).toISOString(),
+      date: new Date(t.timestamp * 1000).toLocaleString(),
       transferType,
       hash: t.id.split('-')[0],
     };
