@@ -1,4 +1,4 @@
-import {
+import BadgerSDK, {
   BadgerAPI,
   BadgerGraph,
   ChartGranularity,
@@ -33,12 +33,14 @@ import {
   Transfer_OrderBy,
 } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { VaultTransfer } from '../../../interfaces/vault-transfer.interface';
+import { getChainExplorer } from '../../../utils';
 
 interface Props {
   vault: VaultDTO;
   chartData: VaultSnapshot[];
   schedules: EmissionSchedule[];
   transfers: VaultTransfer[];
+  network: Network;
 }
 
 type VaultPathParms = { network: string; address: string };
@@ -48,6 +50,7 @@ function VaultInformation({
   chartData,
   schedules,
   transfers,
+  network,
 }: Props): JSX.Element {
   const {
     name,
@@ -89,7 +92,7 @@ function VaultInformation({
       .concat('...')
       .concat(address.slice(address.length - 4));
   const toExplorerLink = (address: string) =>
-    `https://etherscan.io/address/${address}`;
+    `${getChainExplorer(network)}/address/${address}`;
   const toReadableFee = (fee: number) => `${fee / 100}%`;
   const valueFormatter = format('^$.3s');
 
@@ -335,7 +338,9 @@ function VaultInformation({
           <div className="text-sm text-gray-400">Vault Harvest Health</div>
           <div
             className={`text-xl ${
-              realizedHarvestPercent > 95
+              realizedHarvestPercent > 100
+                ? 'text-badger'
+                : realizedHarvestPercent > 95
                 ? 'text-green-400'
                 : realizedHarvestPercent > 90
                 ? 'text-orange-400'
@@ -456,7 +461,10 @@ function VaultInformation({
                 <span>{t.transferType}</span>
                 <span>{t.amount.toFixed(5)}</span>
                 <span className="text-mint">
-                  <a href={`https://etherscan.io/tx/${t.hash}`} target="_blank">
+                  <a
+                    href={`${getChainExplorer(network)}/tx/${t.hash}`}
+                    target="_blank"
+                  >
                     View
                   </a>
                 </span>
@@ -479,7 +487,8 @@ export async function getStaticProps({
   }
 
   const { network, address } = params;
-  const api = new BadgerAPI({ network });
+  const sdk = new BadgerSDK({ network, provider: '' });
+  const { api, config } = sdk;
   const tokens = await api.loadTokens();
   const vault = await api.loadVault(address);
 
@@ -527,6 +536,7 @@ export async function getStaticProps({
       chartData,
       schedules,
       transfers: vaultTransfers,
+      network: config.network,
     },
   };
 }
