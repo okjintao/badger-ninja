@@ -1,0 +1,13 @@
+name: Deploy
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  cron:
+    name: Inspect the Den
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Deploy Hook
+        run: curl ${{ secrets.NINJA_DEPLOY_HOOK }}
