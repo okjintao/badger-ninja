@@ -63,9 +63,9 @@ function VaultInformation({
     underlyingToken,
     vaultToken,
     strategy,
-    minApy,
-    maxApy,
-    apy,
+    minApr,
+    maxApr,
+    apr,
     yieldProjection,
   } = vault;
   const {
@@ -98,11 +98,11 @@ function VaultInformation({
       case 'value':
         return 'TVL';
       case 'yieldApr':
-        return 'Spot';
+        return 'Spot APR';
       case 'harvestApr':
-        return 'Projected';
+        return 'Projected APR';
       default:
-        return 'APR';
+        return '21 day APR';
     }
   }
 
@@ -145,16 +145,17 @@ function VaultInformation({
     }
   });
 
-  const toAprRange = (apy: number, minApy?: number, maxApy?: number) =>
-    minApy && maxApy && minApy !== maxApy
-      ? `${minApy.toFixed(2)}% - ${maxApy.toFixed(2)}%`
+  const toAprRange = (apy: number, minApr?: number, maxApr?: number) =>
+    minApr && maxApr && minApr !== maxApr
+      ? `${minApr.toFixed(2)}% - ${maxApr.toFixed(2)}%`
       : `${apy.toFixed(2)}%`;
-  const currentYieldDisplay = toAprRange(apy, minApy, maxApy);
+  const currentYieldDisplay = toAprRange(apr, minApr, maxApr);
 
   let yieldDisplay: React.ReactNode;
   if (vault.sourcesApy.length > 0) {
-    yieldDisplay = vault.sourcesApy.map((s) => (
+    yieldDisplay = vault.sources.map((s) => (
       <VaultStatistic
+        key={s.name}
         title={s.name}
         value={toAprRange(s.apr, s.minApr, s.maxApr)}
       />
@@ -167,8 +168,9 @@ function VaultInformation({
     );
   }
 
+  const hasEmissionSchedules = schedules.length > 0;
   let emissionDisplay: React.ReactNode;
-  if (schedules.length > 0) {
+  if (hasEmissionSchedules) {
     emissionDisplay = schedules.map((s) => {
       const title = `${s.token} (${s.compPercent}% complete)`;
       const start = new Date(s.start * 1000).toLocaleDateString();
@@ -190,9 +192,7 @@ function VaultInformation({
   }
 
   const realizedHarvestPercent =
-    version === VaultVersion.v1_5
-      ? Math.min(harvestValue / yieldValue, 1) * 100
-      : 0;
+    version === VaultVersion.v1_5 ? (harvestValue / yieldValue) * 100 : 0;
 
   return (
     <div className="flex flex-grow flex-col w-full md:w-5/6 text-gray-300 pb-10 mx-auto">
@@ -248,7 +248,7 @@ function VaultInformation({
         </div>
       </div>
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
-        <div className="text-sm text-gray-400">Vault History</div>
+        <div className="text-sm text-gray-400 mb-4">Vault History</div>
         <ResponsiveContainer height={350}>
           <ComposedChart data={chartData}>
             <Legend formatter={legendFormatter} />
@@ -297,6 +297,7 @@ function VaultInformation({
               fill="#707793"
               stroke="#707793"
               yAxisId="value"
+              strokeWidth={2}
             />
             <Line
               type="monotone"
@@ -304,45 +305,30 @@ function VaultInformation({
               fill="#292929"
               stroke="#292929"
               yAxisId="yieldApr"
+              strokeWidth={1.5}
             />
             {version === VaultVersion.v1_5 && (
               <>
+                <Line
+                  type="monotone"
+                  dataKey="yieldApr"
+                  fill="gray"
+                  stroke="gray"
+                  yAxisId="yieldApr"
+                  strokeWidth={1.5}
+                />
                 <Line
                   type="monotone"
                   dataKey="harvestApr"
                   fill="#3bba9c"
                   stroke="#3bba9c"
                   yAxisId="yieldApr"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="yieldApr"
-                  fill="#2e3047"
-                  stroke="#2e3047"
-                  yAxisId="yieldApr"
+                  strokeWidth={1.5}
                 />
               </>
             )}
           </ComposedChart>
         </ResponsiveContainer>
-      </div>
-      <div className="mt-4 mx-2 md:mx-0 grid grid-cols-1 md:grid-cols-2">
-        <div className="bg-calm p-3 md:mr-2 rounded-lg">
-          <div className="text-sm text-gray-400">Vault APR Sources</div>
-          <div className="text-xl font-semibold text-white">
-            {currentYieldDisplay}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2">{yieldDisplay}</div>
-        </div>
-        <div className="bg-calm p-3 md:ml-2 rounded-lg mt-4 md:mt-0">
-          <div className="text-sm text-gray-400">Vault Emissions</div>
-          <div className="text-xl font-semibold text-white">
-            {schedules.length} Active Schedules
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            {emissionDisplay}
-          </div>
-        </div>
       </div>
       {version === VaultVersion.v1_5 && (
         <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
@@ -358,11 +344,18 @@ function VaultInformation({
           >
             {realizedHarvestPercent.toFixed(2)}% Realized Yield
           </div>
+          <div className="text-xs mt-2">What is Harvest Health?</div>
+          <div className="text-xs mt-1 text-gray-400">
+            Harvest health is a measure of a strategy performance. Pending yield
+            is the current yield being realized by the vault from the protocol
+            being farmed. Pending harvest is the current simulated yield being
+            realized by the vault when harvested. This measure most accurately
+            reflects the current yield the vault is experiencing with respect to
+            market conditions and other externalities.
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 mt-3">
             <div className="flex flex-col">
-              <div className="text-xs text-gray-400">
-                Pending Yield ({protocol})
-              </div>
+              <div className="text-xs">Pending Yield ({protocol})</div>
               <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
                 {yieldTokens.map((t) => (
                   <VaultStatistic
@@ -377,12 +370,12 @@ function VaultInformation({
                   />
                 ))}
               </div>
-              <div className="text-xs text-gray-400 mt-2">
+              <div className="text-xs mt-2">
                 Total: {yieldValue.toFixed(2)} ({yieldApr.toFixed(2)}% APR)
               </div>
             </div>
             <div className="flex flex-col">
-              <div className="text-xs text-gray-400">Pending Harvest</div>
+              <div className="text-xs">Pending Harvest</div>
               <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
                 {harvestTokens.map((t) => (
                   <VaultStatistic
@@ -397,16 +390,53 @@ function VaultInformation({
                   />
                 ))}
               </div>
-              <div className="text-xs text-gray-400 mt-2">
+              <div className="text-xs mt-2">
                 Total: {harvestValue.toFixed(2)} ({harvestApr.toFixed(2)}% APR)
               </div>
             </div>
           </div>
         </div>
       )}
-      {/* <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
+      <div className="mt-4 mx-2 md:mx-0 grid grid-cols-1 md:grid-cols-2">
+        <div className="bg-calm p-3 md:mr-2 rounded-lg">
+          <div className="text-sm text-gray-400">Vault APR Sources</div>
+          <div className="text-xs mt-2">What are Vault APR Sources?</div>
+          <div className="text-xs mt-1 mb-1 text-gray-400">
+            Vault APR Sources are a 21 day TWAY (Time Weighted Average Yield) of
+            the vault given fluctations in yield and TVL. This value will almost
+            never match the spot yield, and reflects a more long term yield
+            history of the vault.
+          </div>
+          <div className="text-xl font-semibold text-white">
+            {currentYieldDisplay}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2">{yieldDisplay}</div>
+        </div>
+        <div className="bg-calm p-3 md:ml-2 rounded-lg mt-4 md:mt-0">
+          <div className="text-sm text-gray-400">Vault Emission Schedules</div>
+          <div className="text-xs mt-2">What are Emission Schedules?</div>
+          <div className="text-xs mt-1 mb-1 text-gray-400">
+            Emission schedules are how Badger distributes rewards to depositors.
+            A set number of a specific token is distributed to the vault over
+            any given duration. These tokens are distributed either pro rata or
+            in a boosted manner dependent on the token emitted.
+          </div>
+          <div className="text-xl font-semibold text-white">
+            {schedules.length} Active Schedules
+          </div>
+          <div
+            className={`grid grid-cols-1 ${
+              hasEmissionSchedules ? 'md:grid-cols-2' : ''
+            }`}
+          >
+            {emissionDisplay}
+          </div>
+        </div>
+      </div>
+      <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault Harvest History</div>
-      </div> */}
+        <div>Coming Soon</div>
+      </div>
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault User History</div>
         <div className="mt-2 mx-2">
@@ -418,7 +448,10 @@ function VaultInformation({
           </div>
           {transfers.map((t, i) => {
             return (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-2 rounded-lg">
+              <div
+                key={`${t.hash}-${i}`}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-2 rounded-lg"
+              >
                 <span>{t.date}</span>
                 <span>{t.transferType}</span>
                 <span>{t.amount.toFixed(5)}</span>
