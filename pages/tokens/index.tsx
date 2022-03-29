@@ -17,14 +17,14 @@ function Tokens({ networks }: Props): JSX.Element {
         {networks.map((n) => {
           const { name, tokens, prices } = n;
           return (
-            <div className="flex flex-col my-2 bg-calm p-2 rounded large">
+            <div key={name} className="flex flex-col my-2 bg-calm p-2 rounded large">
               <span className="text-xl">{name}</span>
               <span className="text-xs text-gray-400">{Object.keys(tokens).length} Tokens</span>
               <div className="mt-2 mx-2">
                 {Object.values(tokens).map((t) => {
                   const { name, symbol, address } = t;
                   return (
-                    <div className="grid grid-cols-2 mb-1">
+                    <div key={`${n.name}-${address}`} className="grid grid-cols-2 mb-1">
                       <div className="flex flex-col">
                         <span>{name}</span>
                         <span className="text-xs text-gray-400">{symbol}</span>

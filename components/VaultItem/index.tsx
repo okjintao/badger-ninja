@@ -29,11 +29,7 @@ function VaultItem({ vault }: Props): JSX.Element {
         <div className="text-sm">${value.toLocaleString()}</div>
         <div className="text-sm">{yieldDisplay}</div>
       </div>
-      <div className="flex justify-between items-end">
-        {lastHarvest > 0 && 
-          <div className="text-xs">Harvested: {new Date(lastHarvest * 1000).toLocaleString()}</div>
-        }
-      </div>
+      <div className="text-xs text-gray-400">Harvested: {lastHarvest > 0 ? new Date(lastHarvest * 1000).toLocaleString() : 'Unkown'}</div>
     </div>
   )
 }

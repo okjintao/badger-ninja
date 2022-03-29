@@ -180,6 +180,7 @@ function VaultInformation({
       const end = new Date(s.end * 1000).toLocaleDateString();
       return (
         <VaultStatistic
+          key={`${s.token}-emission`}
           title={title}
           value={s.amount}
           subtext={`${start} - ${end}`}
