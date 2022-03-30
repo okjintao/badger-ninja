@@ -3,12 +3,11 @@ import {
   Network,
   Currency,
   VaultState,
-  VaultYieldProjection,
   VaultVersion,
 } from '@badger-dao/sdk';
 import { GetStaticPropsResult } from 'next';
-import { NetworkSummary } from '../../interfaces/network-summary.interface';
-import { getChainExplorer } from '../../utils';
+import VaultHarvestItem from '../../components/VaultHarvestItem';
+import { VaultHarvestSummary } from '../../interfaces/vault-harvest-summary.interface';
 
 interface Props {
   alertVaults: VaultHarvestSummary[];
@@ -16,24 +15,31 @@ interface Props {
   healthyVaults: VaultHarvestSummary[];
 }
 
-type VaultHarvestSummary = {
-  name: string;
-  yieldProjection: VaultYieldProjection;
-  networkName: string;
-  network: Network;
-  lastHarvest: number;
-};
-
 function VaultMonitor({
   alertVaults,
   borderlineVaults,
   healthyVaults,
 }: Props): JSX.Element {
   return (
-    <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto">
-      <span className="mt-6 text-3xl text-badger">
-        Vaults v1.5 Monitoring Soon™
-      </span>
+    <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto mt-4">
+      {alertVaults.map((v) => (
+        <VaultHarvestItem
+          key={`${v.networkName}-${v.name}`}
+          harvestInformation={v}
+        />
+      ))}
+      {borderlineVaults.map((v) => (
+        <VaultHarvestItem
+          key={`${v.networkName}-${v.name}`}
+          harvestInformation={v}
+        />
+      ))}
+      {healthyVaults.map((v) => (
+        <VaultHarvestItem
+          key={`${v.networkName}-${v.name}`}
+          harvestInformation={v}
+        />
+      ))}
     </div>
   );
 }
@@ -67,14 +73,12 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
             lastHarvest: v.lastHarvest,
           };
           const { harvestValue, yieldValue } = v.yieldProjection;
-          const harvestHealth = harvestValue / yieldValue;
-          if (harvestHealth >= 97.5) {
+          const harvestHealth = (harvestValue / yieldValue) * 100;
+          if (harvestHealth >= 97) {
             healthyVaults.push(summary);
-          }
-          if (harvestHealth >= 95) {
+          } else if (harvestHealth >= 94) {
             borderlineVaults.push(summary);
-          }
-          if (harvestHealth < 95) {
+          } else if (harvestHealth < 94) {
             alertVaults.push(summary);
           }
         });

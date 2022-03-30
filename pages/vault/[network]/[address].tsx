@@ -347,9 +347,9 @@ function VaultInformation({
             className={`text-xl ${
               realizedHarvestPercent > 100
                 ? 'text-electric text-shadow'
-                : realizedHarvestPercent > 97.5
+                : realizedHarvestPercent > 97
                 ? 'text-green-400'
-                : realizedHarvestPercent > 95
+                : realizedHarvestPercent > 94
                 ? 'text-orange-400'
                 : 'text-red-400'
             }`}
