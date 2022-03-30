@@ -6,6 +6,7 @@ import BadgerSDK, {
   EmissionSchedule,
   formatBalance,
   Network,
+  PriceSummary,
   VaultDTO,
   VaultSnapshot,
   VaultVersion,
@@ -42,6 +43,7 @@ interface Props {
   schedules: EmissionSchedule[];
   transfers: VaultTransfer[];
   network: Network;
+  prices: PriceSummary;
 }
 
 type VaultPathParms = { network: string; address: string };
@@ -54,7 +56,12 @@ function VaultInformation({
   schedules,
   transfers,
   network,
+  prices,
 }: Props): JSX.Element {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  });
   const {
     name,
     value,
@@ -205,14 +212,14 @@ function VaultInformation({
   const [page, setPage] = useState(0);
 
   return (
-    <div className="flex flex-grow flex-col w-full md:w-5/6 text-gray-300 pb-10 mx-auto">
+    <div className="flex flex-grow flex-col w-full md:11/12 lg:w-5/6 text-gray-300 pb-10 mx-auto">
       <div className="bg-calm mt-4 md:mt-8 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault Information</div>
         <div className="text-3xl font-semibold text-white">
           {name} - ${value.toLocaleString()}
         </div>
         <div className="text-xs text-gray-400">{version}</div>
-        <div className="mt-4 mb-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 mb-2 grid grid-cols-2 lg:grid-cols-4">
           <VaultStatistic title="Protocol" value={protocol} />
           <VaultStatistic
             title="Last Harvest"
@@ -365,7 +372,7 @@ function VaultInformation({
             reflects the current yield the vault is experiencing with respect to
             market conditions and other externalities.
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 mt-3">
+          <div className="grid grid-cols-2 mt-3">
             <div className="flex flex-col">
               <div className="text-xs">Pending Yield ({protocol})</div>
               <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
@@ -452,7 +459,7 @@ function VaultInformation({
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault User History</div>
         <div className="mt-2 mx-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-1">
+          <div className="md:grid hidden md:grid-cols-4 p-1">
             <div>Date</div>
             <div>Action</div>
             <div>Amount</div>
@@ -464,29 +471,39 @@ function VaultInformation({
               return (
                 <div
                   key={`${t.hash}-${i}`}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-2 rounded-lg"
+                  className="grid grid-cols-2 md:grid-cols-1"
                 >
-                  <div>{t.date}</div>
-                  <div>{t.transferType}</div>
-                  <div>{t.amount.toFixed(5)}</div>
-                  <div className="text-mint">
-                    <a
-                      className="flex"
-                      href={`${getChainExplorer(network)}/tx/${t.hash}`}
-                      target="_blank"
-                    >
-                      {shortenAddress(t.hash, 8)}
-                      <svg
-                        className="ml-2 mt-1"
-                        fill="#3bba9c"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="15px"
-                        height="15px"
+                  <div className="md:hidden grid grid-cols-1 p-1 text-sm text-gray-400 items-center">
+                    <div>Date</div>
+                    <div>Action</div>
+                    <div>Amount</div>
+                    <div>Transaction</div>
+                  </div>
+                  <div className="grid md:grid-cols-4 p-1 rounded-lg">
+                    <div>{t.date}</div>
+                    <div>{t.transferType}</div>
+                    <div>
+                      {t.amount.toLocaleString()} ({formatter.format(prices[vault.vaultToken] * t.amount)})
+                    </div>
+                    <div className="text-mint">
+                      <a
+                        className="flex"
+                        href={`${getChainExplorer(network)}/tx/${t.hash}`}
+                        target="_blank"
                       >
-                        <path d="M 5 3 C 3.9069372 3 3 3.9069372 3 5 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 12 L 19 12 L 19 19 L 5 19 L 5 5 L 12 5 L 12 3 L 5 3 z M 14 3 L 14 5 L 17.585938 5 L 8.2929688 14.292969 L 9.7070312 15.707031 L 19 6.4140625 L 19 10 L 21 10 L 21 3 L 14 3 z" />
-                      </svg>
-                    </a>
+                        {shortenAddress(t.hash, 8)}
+                        <svg
+                          className="ml-2 mt-1"
+                          fill="#3bba9c"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          width="15px"
+                          height="15px"
+                        >
+                          <path d="M 5 3 C 3.9069372 3 3 3.9069372 3 5 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 12 L 19 12 L 19 19 L 5 19 L 5 5 L 12 5 L 12 3 L 5 3 z M 14 3 L 14 5 L 17.585938 5 L 8.2929688 14.292969 L 9.7070312 15.707031 L 19 6.4140625 L 19 10 L 21 10 L 21 3 L 14 3 z" />
+                        </svg>
+                      </a>
+                    </div>
                   </div>
                 </div>
               );
@@ -584,6 +601,8 @@ export async function getStaticProps({
     };
   });
 
+  const prices = await api.loadPrices();
+
   return {
     props: {
       vault,
@@ -591,6 +610,7 @@ export async function getStaticProps({
       schedules,
       transfers: vaultTransfers,
       network: config.network,
+      prices,
     },
   };
 }
