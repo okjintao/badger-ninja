@@ -12,6 +12,7 @@ module.exports = {
         foam: '#707793',
         calm: '#43455c',
         badger: '#f2a52b',
+        electric: '#04b0e1',
       },
     },
   },

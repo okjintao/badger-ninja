@@ -12,7 +12,7 @@ function NavBar(): JSX.Element {
           <Image src={'/icon/badger-head.png'} width={25} height={25} />
         </div>
         <NavLink href="/" text="Overview" />
-        <NavLink href="/rewards" text="Rewards" />
+        <NavLink href="/monitor" text="Monitor" />
         <NavLink href="/tokens" text="Tokens" />
       </div>
     </div>

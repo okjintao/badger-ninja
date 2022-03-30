@@ -34,6 +34,7 @@ import {
 } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { VaultTransfer } from '../../../interfaces/vault-transfer.interface';
 import { getChainExplorer } from '../../../utils';
+import { useState } from 'react';
 
 interface Props {
   vault: VaultDTO;
@@ -44,6 +45,8 @@ interface Props {
 }
 
 type VaultPathParms = { network: string; address: string };
+
+const PAGE_SIZE = 10;
 
 function VaultInformation({
   vault,
@@ -86,11 +89,11 @@ function VaultInformation({
     yieldApr,
     harvestApr,
   } = yieldProjection;
-  const shortenAddress = (address: string) =>
+  const shortenAddress = (address: string, length = 4) =>
     address
-      .slice(0, 4)
+      .slice(0, length)
       .concat('...')
-      .concat(address.slice(address.length - 4));
+      .concat(address.slice(address.length - length));
   const toExplorerLink = (address: string) =>
     `${getChainExplorer(network)}/address/${address}`;
   const toReadableFee = (fee: number) => `${fee / 100}%`;
@@ -197,6 +200,9 @@ function VaultInformation({
 
   const realizedHarvestPercent =
     version === VaultVersion.v1_5 ? (harvestValue / yieldValue) * 100 : 0;
+
+  const maxPages = transfers.length / PAGE_SIZE - 1;
+  const [page, setPage] = useState(0);
 
   return (
     <div className="flex flex-grow flex-col w-full md:w-5/6 text-gray-300 pb-10 mx-auto">
@@ -340,10 +346,10 @@ function VaultInformation({
           <div
             className={`text-xl ${
               realizedHarvestPercent > 100
-                ? 'text-badger'
-                : realizedHarvestPercent > 95
+                ? 'text-electric text-shadow'
+                : realizedHarvestPercent > 97.5
                 ? 'text-green-400'
-                : realizedHarvestPercent > 90
+                : realizedHarvestPercent > 95
                 ? 'text-orange-400'
                 : 'text-red-400'
             }`}
@@ -441,37 +447,85 @@ function VaultInformation({
       </div>
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault Harvest History</div>
-        <div>Coming Soon</div>
+        <div className="text-badger">Coming Soon™</div>
       </div>
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault User History</div>
         <div className="mt-2 mx-2">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-1">
-            <span>Date</span>
-            <span>Action</span>
-            <span>Amount</span>
-            <span>Transaction</span>
+            <div>Date</div>
+            <div>Action</div>
+            <div>Amount</div>
+            <div>Transaction</div>
           </div>
-          {transfers.map((t, i) => {
-            return (
-              <div
-                key={`${t.hash}-${i}`}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-2 rounded-lg"
+          {transfers
+            .slice(PAGE_SIZE * page, PAGE_SIZE * (page + 1) + 1)
+            .map((t, i) => {
+              return (
+                <div
+                  key={`${t.hash}-${i}`}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 p-2 rounded-lg"
+                >
+                  <div>{t.date}</div>
+                  <div>{t.transferType}</div>
+                  <div>{t.amount.toFixed(5)}</div>
+                  <div className="text-mint">
+                    <a
+                      className="flex"
+                      href={`${getChainExplorer(network)}/tx/${t.hash}`}
+                      target="_blank"
+                    >
+                      {shortenAddress(t.hash, 8)}
+                      <svg
+                        className="ml-2 mt-1"
+                        fill="#3bba9c"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="15px"
+                        height="15px"
+                      >
+                        <path d="M 5 3 C 3.9069372 3 3 3.9069372 3 5 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 12 L 19 12 L 19 19 L 5 19 L 5 5 L 12 5 L 12 3 L 5 3 z M 14 3 L 14 5 L 17.585938 5 L 8.2929688 14.292969 L 9.7070312 15.707031 L 19 6.4140625 L 19 10 L 21 10 L 21 3 L 14 3 z" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
+          <div className="flex my-2 justify-center items-center">
+            {page > 0 && (
+              <svg
+                onClick={() => setPage(page - 1)}
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 hover:text-mint cursor-pointer"
+                viewBox="0 0 20 20"
+                fill="currentColor"
               >
-                <span>{t.date}</span>
-                <span>{t.transferType}</span>
-                <span>{t.amount.toFixed(5)}</span>
-                <span className="text-mint">
-                  <a
-                    href={`${getChainExplorer(network)}/tx/${t.hash}`}
-                    target="_blank"
-                  >
-                    View
-                  </a>
-                </span>
-              </div>
-            );
-          })}
+                <path
+                  fillRule="evenodd"
+                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+            <div className="font-semibold font-gray-400 text-sm mx-2">
+              {page + 1}
+            </div>
+            {page < maxPages && (
+              <svg
+                onClick={() => setPage(page + 1)}
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 hover:text-mint cursor-pointer"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -512,7 +566,6 @@ export async function getStaticProps({
     },
     orderBy: Transfer_OrderBy.Timestamp,
     orderDirection: OrderDirection.Desc,
-    first: 25,
   });
   const vaultTransfers = transfers.map((t) => {
     const transferType =
