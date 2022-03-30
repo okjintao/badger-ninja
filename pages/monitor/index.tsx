@@ -70,7 +70,7 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
             networkName,
             name: v.name,
             yieldProjection: v.yieldProjection,
-            lastHarvest: v.lastHarvest,
+            address: v.vaultToken,
           };
           const { harvestValue, yieldValue } = v.yieldProjection;
           const harvestHealth = (harvestValue / yieldValue) * 100;
