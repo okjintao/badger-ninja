@@ -15,9 +15,6 @@ function NavBar(): JSX.Element {
         <NavLink href="/rewards" text="Rewards" />
         <NavLink href="/tokens" text="Tokens" />
       </div>
-      <div className="flex items-center text-gray-400 text-xs">
-        Updated at {new Date().toLocaleString()}
-      </div>
     </div>
   );
 }
