@@ -10,6 +10,8 @@ export function getChainExplorer(network: Network) {
       return 'https://arbiscan.io';
     case Network.Polygon:
       return 'https://polygonscan.com';
+    case Network.BinanceSmartChain:
+      return 'https://bscscan.com';
     default:
       return 'https://etherscan.io';
   }
