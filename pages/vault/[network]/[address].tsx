@@ -758,6 +758,10 @@ export async function getStaticProps({
           ? d.token.id.slice(2)
           : d.token.id;
         const emissionToken = tokens[ethers.utils.getAddress(tokenAddress)];
+        if (!emissionToken) {
+          // bsc and arb is apparently acting weird
+          return;
+        }
         const amount = formatBalance(d.amount, emissionToken.decimals);
         const value =
           amount * prices[ethers.utils.getAddress(emissionToken.address)] ?? 0;
