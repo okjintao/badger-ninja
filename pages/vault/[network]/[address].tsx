@@ -57,6 +57,11 @@ type VaultPathParms = { network: string; address: string };
 
 const PAGE_SIZE = 10;
 
+const BLACKLIST_HARVESTS = [
+  '0xfd05D3C7fe2924020620A8bE4961bBaA747e6305',
+  '0x2B5455aac8d64C14786c3a29858E43b5945819C0'
+];
+
 function VaultInformation({
   vault,
   chartData,
@@ -218,6 +223,7 @@ function VaultInformation({
 
   const maxHarvestPages = harvests.length / PAGE_SIZE - 1;
   const [harvestPage, setHarvestPage] = useState(0);
+  console.log({ harvests: harvests.length, harvestPage, maxHarvestPages });
 
   const maxPages = transfers.length / PAGE_SIZE - 1;
   const [page, setPage] = useState(0);
@@ -740,16 +746,18 @@ export async function getStaticProps({
       vaultSnapshot.sett?.strategy?.balance ?? vaultSnapshot.sett?.balance;
     const balanceValue = formatBalance(balance, underlyingDecimals);
     const apr = (value / balanceValue) * (31536000 / duration) * 100;
-    harvests.push({
-      rewardType: RewardType.Harvest,
-      token: tokens[vault.underlyingToken].name,
-      amount,
-      value,
-      duration,
-      apr,
-      timestamp: start.timestamp,
-      hash: start.id.split('-')[0],
-    });
+    if (!BLACKLIST_HARVESTS.includes(address)) {
+      harvests.push({
+        rewardType: RewardType.Harvest,
+        token: tokens[vault.underlyingToken].name,
+        amount,
+        value,
+        duration,
+        apr,
+        timestamp: start.timestamp,
+        hash: start.id.split('-')[0],
+      });
+    }
 
     badgerTreeDistributions
       .filter((d) => d.timestamp === start.timestamp)
