@@ -8,6 +8,7 @@ import BadgerSDK, {
   Network,
   PriceSummary,
   VaultDTO,
+  VaultHarvestData,
   VaultSnapshot,
   VaultVersion,
 } from '@badger-dao/sdk';
@@ -30,12 +31,17 @@ import {
 import { timeFormat } from 'd3-time-format';
 import { format } from 'd3-format';
 import {
+  BadgerTreeDistribution_OrderBy,
   OrderDirection,
+  SettHarvest_OrderBy,
   Transfer_OrderBy,
 } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { VaultTransfer } from '../../../interfaces/vault-transfer.interface';
 import { getChainExplorer } from '../../../utils';
 import { useState } from 'react';
+import { VaultHarvestInfo } from '../../../interfaces/vault-harvest-info.interface';
+import { RewardType } from '../../../enums/reward-type.enum';
+import { ethers } from 'ethers';
 
 interface Props {
   vault: VaultDTO;
@@ -44,6 +50,7 @@ interface Props {
   transfers: VaultTransfer[];
   network: Network;
   prices: PriceSummary;
+  harvests: VaultHarvestInfo[];
 }
 
 type VaultPathParms = { network: string; address: string };
@@ -57,6 +64,7 @@ function VaultInformation({
   transfers,
   network,
   prices,
+  harvests,
 }: Props): JSX.Element {
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -207,6 +215,9 @@ function VaultInformation({
 
   const realizedHarvestPercent =
     version === VaultVersion.v1_5 ? (harvestValue / yieldValue) * 100 : 0;
+
+  const maxHarvestPages = harvests.length / PAGE_SIZE - 1;
+  const [harvestPage, setHarvestPage] = useState(0);
 
   const maxPages = transfers.length / PAGE_SIZE - 1;
   const [page, setPage] = useState(0);
@@ -454,11 +465,104 @@ function VaultInformation({
       </div>
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault Harvest History</div>
-        <div className="text-badger">Coming Soon™</div>
+        <div className="mt-2">
+          <div className="md:grid hidden md:grid-cols-6 p-1">
+            <div>Date</div>
+            <div>Reward Type</div>
+            <div>Value</div>
+            <div>Amount</div>
+            <div>APR</div>
+            <div>Transaction</div>
+          </div>
+          {harvests
+            .slice(harvestPage * PAGE_SIZE, harvestPage + 1 * PAGE_SIZE + 1)
+            .map((h, i) => {
+              return (
+                <div
+                  key={`harvest-${h.token}-${i}`}
+                  className="grid grid-cols-1 md:grid-cols-6 py-1"
+                >
+                  <div>{new Date(h.timestamp * 1000).toLocaleString()}</div>
+                  <div>{h.rewardType}</div>
+                  <div>{formatter.format(h.value)}</div>
+                  <div>
+                    {h.amount.toFixed(3)} {h.token}
+                  </div>
+                  <div>{h.apr.toFixed(2)}%</div>
+                  <div className="text-mint">
+                    <a
+                      className="flex"
+                      href={`${getChainExplorer(network)}/tx/${h.hash}`}
+                      target="_blank"
+                    >
+                      {shortenAddress(h.hash, 8)}
+                      <svg
+                        className="ml-2 mt-1"
+                        fill="#3bba9c"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="15px"
+                        height="15px"
+                      >
+                        <path d="M 5 3 C 3.9069372 3 3 3.9069372 3 5 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 12 L 19 12 L 19 19 L 5 19 L 5 5 L 12 5 L 12 3 L 5 3 z M 14 3 L 14 5 L 17.585938 5 L 8.2929688 14.292969 L 9.7070312 15.707031 L 19 6.4140625 L 19 10 L 21 10 L 21 3 L 14 3 z" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
+          <div className="flex my-2 justify-center items-center">
+            <svg
+              onClick={() => {
+                if (harvestPage > 0) {
+                  setHarvestPage(harvestPage - 1);
+                }
+              }}
+              xmlns="http://www.w3.org/2000/svg"
+              className={`h-5 w-5 ${
+                harvestPage > 0
+                  ? 'hover:text-mint cursor-pointer'
+                  : 'opacity-50'
+              }`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div className="font-semibold font-gray-400 text-sm mx-2">
+              {harvestPage + 1}
+            </div>
+            <svg
+              onClick={() => {
+                if (harvestPage + 1 < maxHarvestPages) {
+                  setHarvestPage(harvestPage + 1);
+                }
+              }}
+              xmlns="http://www.w3.org/2000/svg"
+              className={`h-5 w-5 ${
+                harvestPage < maxHarvestPages
+                  ? 'hover:text-mint cursor-pointer'
+                  : 'opacity-50'
+              }`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        </div>
       </div>
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault User History</div>
-        <div className="mt-2 mx-2">
+        <div className="mt-2">
           <div className="md:grid hidden md:grid-cols-4 p-1">
             <div>Date</div>
             <div>Action</div>
@@ -469,21 +573,13 @@ function VaultInformation({
             .slice(PAGE_SIZE * page, PAGE_SIZE * (page + 1) + 1)
             .map((t, i) => {
               return (
-                <div
-                  key={`${t.hash}-${i}`}
-                  className="grid grid-cols-2 md:grid-cols-1"
-                >
-                  <div className="md:hidden grid grid-cols-1 p-1 text-sm text-gray-400 items-center">
-                    <div>Date</div>
-                    <div>Action</div>
-                    <div>Amount</div>
-                    <div>Transaction</div>
-                  </div>
+                <div key={`${t.hash}-${i}`} className="grid grid-cols-1">
                   <div className="grid md:grid-cols-4 p-1 rounded-lg">
                     <div>{t.date}</div>
                     <div>{t.transferType}</div>
                     <div>
-                      {t.amount.toLocaleString()} ({formatter.format(prices[vault.vaultToken] * t.amount)})
+                      {t.amount.toLocaleString()} (
+                      {formatter.format(prices[vault.vaultToken] * t.amount)})
                     </div>
                     <div className="text-mint">
                       <a
@@ -509,39 +605,49 @@ function VaultInformation({
               );
             })}
           <div className="flex my-2 justify-center items-center">
-            {page > 0 && (
-              <svg
-                onClick={() => setPage(page - 1)}
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 hover:text-mint cursor-pointer"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
+            <svg
+              onClick={() => {
+                if (page > 0) {
+                  setPage(page - 1);
+                }
+              }}
+              xmlns="http://www.w3.org/2000/svg"
+              className={`h-5 w-5 ${
+                page > 0 ? 'hover:text-mint cursor-pointer' : 'opacity-50'
+              }`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
             <div className="font-semibold font-gray-400 text-sm mx-2">
               {page + 1}
             </div>
-            {page < maxPages && (
-              <svg
-                onClick={() => setPage(page + 1)}
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 hover:text-mint cursor-pointer"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
+            <svg
+              onClick={() => {
+                if (page < maxPages) {
+                  setPage(page + 1);
+                }
+              }}
+              xmlns="http://www.w3.org/2000/svg"
+              className={`h-5 w-5 ${
+                page < maxPages
+                  ? 'hover:text-mint cursor-pointer'
+                  : 'opacity-50'
+              }`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
           </div>
         </div>
       </div>
@@ -560,7 +666,7 @@ export async function getStaticProps({
 
   const { network, address } = params;
   const sdk = new BadgerSDK({ network, provider: '' });
-  const { api, config } = sdk;
+  const { api, graph, config } = sdk;
   const tokens = await api.loadTokens();
   const vault = await api.loadVault(address);
 
@@ -576,7 +682,6 @@ export async function getStaticProps({
   const schedules = await api.loadSchedule(address, true);
   schedules.forEach((s) => (s.token = tokens[s.token].name));
 
-  const graph = new BadgerGraph({ network });
   const { transfers } = await graph.loadTransfers({
     where: {
       sett: address.toLowerCase(),
@@ -603,6 +708,73 @@ export async function getStaticProps({
 
   const prices = await api.loadPrices();
 
+  const { settHarvests } = await graph.loadSettHarvests({
+    where: {
+      sett: address.toLowerCase(),
+    },
+    orderBy: SettHarvest_OrderBy.Timestamp,
+    orderDirection: OrderDirection.Desc,
+  });
+  const { badgerTreeDistributions } = await graph.loadBadgerTreeDistributions({
+    where: {
+      sett: address.toLowerCase(),
+    },
+    orderBy: BadgerTreeDistribution_OrderBy.Timestamp,
+    orderDirection: OrderDirection.Desc,
+  });
+
+  const harvests: VaultHarvestInfo[] = [];
+
+  for (let i = 0; i < settHarvests.length - 1; i++) {
+    const start = settHarvests[i];
+    const end = settHarvests[i + 1];
+    const duration = start.timestamp - end.timestamp;
+    const underlyingDecimals = tokens[vault.underlyingToken].decimals;
+    const amount = formatBalance(start.amount, underlyingDecimals);
+    const value = amount * prices[vault.underlyingToken] ?? 0;
+    const vaultSnapshot = await graph.loadSett({
+      id: address.toLowerCase(),
+      block: { number: Number(start.blockNumber) },
+    });
+    const balance =
+      vaultSnapshot.sett?.strategy?.balance ?? vaultSnapshot.sett?.balance;
+    const balanceValue = formatBalance(balance, underlyingDecimals);
+    const apr = (value / balanceValue) * (31536000 / duration) * 100;
+    harvests.push({
+      rewardType: RewardType.Harvest,
+      token: tokens[vault.underlyingToken].name,
+      amount,
+      value,
+      duration,
+      apr,
+      timestamp: start.timestamp,
+      hash: start.id.split('-')[0],
+    });
+
+    badgerTreeDistributions
+      .filter((d) => d.timestamp !== start.timestamp)
+      .forEach((d) => {
+        const tokenAddress = d.token.id.startsWith('0x0x')
+          ? d.token.id.slice(2)
+          : d.token.id;
+        const emissionToken = tokens[ethers.utils.getAddress(tokenAddress)];
+        const amount = formatBalance(d.amount, emissionToken.decimals);
+        const value =
+          amount * prices[ethers.utils.getAddress(emissionToken.address)] ?? 0;
+        const apr = (value / balanceValue) * (31536000 / duration) * 100;
+        harvests.push({
+          rewardType: RewardType.TreeDistribution,
+          token: emissionToken.name,
+          amount,
+          value,
+          duration,
+          apr,
+          timestamp: start.timestamp,
+          hash: d.id.split('-')[0],
+        });
+      });
+  }
+
   return {
     props: {
       vault,
@@ -611,6 +783,7 @@ export async function getStaticProps({
       transfers: vaultTransfers,
       network: config.network,
       prices,
+      harvests,
     },
   };
 }
