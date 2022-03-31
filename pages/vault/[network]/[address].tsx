@@ -752,7 +752,7 @@ export async function getStaticProps({
     });
 
     badgerTreeDistributions
-      .filter((d) => d.timestamp !== start.timestamp)
+      .filter((d) => d.timestamp === start.timestamp)
       .forEach((d) => {
         const tokenAddress = d.token.id.startsWith('0x0x')
           ? d.token.id.slice(2)
