@@ -59,7 +59,7 @@ const PAGE_SIZE = 10;
 
 const BLACKLIST_HARVESTS = [
   '0xfd05D3C7fe2924020620A8bE4961bBaA747e6305',
-  '0x2B5455aac8d64C14786c3a29858E43b5945819C0'
+  '0x53c8e199eb2cb7c01543c137078a038937a68e40'
 ];
 
 function VaultInformation({
@@ -223,7 +223,6 @@ function VaultInformation({
 
   const maxHarvestPages = harvests.length / PAGE_SIZE - 1;
   const [harvestPage, setHarvestPage] = useState(0);
-  console.log({ harvests: harvests.length, harvestPage, maxHarvestPages });
 
   const maxPages = transfers.length / PAGE_SIZE - 1;
   const [page, setPage] = useState(0);
@@ -744,7 +743,7 @@ export async function getStaticProps({
     });
     const balance =
       vaultSnapshot.sett?.strategy?.balance ?? vaultSnapshot.sett?.balance;
-    const balanceValue = formatBalance(balance, underlyingDecimals);
+    const balanceValue = formatBalance(balance, underlyingDecimals) * prices[vault.underlyingToken];
     const apr = (value / balanceValue) * (31536000 / duration) * 100;
     if (!BLACKLIST_HARVESTS.includes(address)) {
       harvests.push({
