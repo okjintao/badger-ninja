@@ -59,7 +59,7 @@ const PAGE_SIZE = 10;
 
 const BLACKLIST_HARVESTS = [
   '0xfd05D3C7fe2924020620A8bE4961bBaA747e6305',
-  '0x53c8e199eb2cb7c01543c137078a038937a68e40'
+  '0x53c8e199eb2cb7c01543c137078a038937a68e40',
 ];
 
 function VaultInformation({
@@ -670,7 +670,11 @@ export async function getStaticProps({
   }
 
   const { network, address } = params;
-  const sdk = new BadgerSDK({ network, provider: '' });
+  const sdk = new BadgerSDK({
+    network,
+    provider: '',
+    baseURL: 'https://staging-api.badger.com/v2',
+  });
   const { api, graph, config } = sdk;
   const tokens = await api.loadTokens();
   const vault = await api.loadVault(address);
@@ -743,7 +747,9 @@ export async function getStaticProps({
     });
     const balance =
       vaultSnapshot.sett?.strategy?.balance ?? vaultSnapshot.sett?.balance;
-    const balanceValue = formatBalance(balance, underlyingDecimals) * prices[vault.underlyingToken];
+    const balanceValue =
+      formatBalance(balance, underlyingDecimals) *
+      prices[vault.underlyingToken];
     const apr = (value / balanceValue) * (31536000 / duration) * 100;
     if (!BLACKLIST_HARVESTS.includes(address)) {
       harvests.push({
@@ -802,7 +808,10 @@ export async function getStaticProps({
 export async function getStaticPaths(): Promise<
   GetStaticPathsResult<VaultPathParms>
 > {
-  const api = new BadgerAPI({ network: 1 });
+  const api = new BadgerAPI({
+    network: 1,
+    baseURL: 'https://staging-api.badger.com/v2',
+  });
 
   let paths: { params: VaultPathParms }[] = [];
 

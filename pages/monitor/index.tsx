@@ -45,7 +45,10 @@ function VaultMonitor({
 }
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
-  const api = new BadgerAPI({ network: 1 });
+  const api = new BadgerAPI({
+    network: 1,
+    baseURL: 'https://staging-api.badger.com/v2',
+  });
 
   const alertVaults: VaultHarvestSummary[] = [];
   const borderlineVaults: VaultHarvestSummary[] = [];
