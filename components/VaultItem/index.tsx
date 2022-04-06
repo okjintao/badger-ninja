@@ -5,10 +5,10 @@ interface Props {
 }
 
 function VaultItem({ vault }: Props): JSX.Element {
-  const { name, value, apy, minApy, maxApy, yieldProjection: { harvestApy }, protocol, lastHarvest, version, sources } = vault;
+  const { name, value, apr, minApr, maxApr, yieldProjection: { harvestApy }, protocol, lastHarvest, version, sources } = vault;
 
-  let minYield = minApy ?? apy;
-  let maxYield = maxApy ?? apy;
+  let minYield = minApr ?? apr;
+  let maxYield = maxApr ?? apr;
 
   if (version === VaultVersion.v1_5) {
     const boostedSources = sources.filter((s) => s.boostable);
