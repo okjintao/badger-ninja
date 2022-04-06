@@ -396,7 +396,7 @@ function VaultInformation({
                   <VaultStatistic
                     key={`yield-${t.address}`}
                     title={t.symbol}
-                    value={t.balance}
+                    value={t.balance.toFixed(5)}
                     subtext={
                       <div className="text-xs text-gray-400">
                         ${t.value.toFixed(2)}
@@ -416,7 +416,7 @@ function VaultInformation({
                   <VaultStatistic
                     key={`harvest-${t.address}`}
                     title={t.symbol}
-                    value={t.balance}
+                    value={t.balance.toFixed(5)}
                     subtext={
                       <div className="text-xs text-gray-400">
                         ${t.value.toFixed(2)}
