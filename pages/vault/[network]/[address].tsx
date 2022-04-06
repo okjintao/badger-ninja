@@ -228,7 +228,7 @@ function VaultInformation({
   const [page, setPage] = useState(0);
 
   return (
-    <div className="flex flex-grow flex-col w-full md:11/12 lg:w-5/6 text-gray-300 pb-10 mx-auto">
+    <div className="flex flex-grow flex-col w-full md:11/12 lg:w-5/6 xl:w-3/4 text-gray-300 pb-10 mx-auto">
       <div className="bg-calm mt-4 md:mt-8 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault Information</div>
         <div className="text-3xl font-semibold text-white">
