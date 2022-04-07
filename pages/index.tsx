@@ -37,9 +37,6 @@ const Landing = observer(({ networks }: Props): JSX.Element => {
       <div className="text-mint font-semibold text-xl leading-tight tracking-tight p-2 mt-4 text-center">
         {headerDisplay}
       </div>
-      <div className="text-xs text-gray-400 font-light tracking-tight leading-tight">
-        Last Updated: {new Date(protocol.lastUpdatedAt).toLocaleString()}
-      </div>
       {networksByTVL
         .filter((n) => n.tvl > 0 && n.vaults.length > 0)
         .map((n) => (
@@ -62,6 +59,9 @@ const Landing = observer(({ networks }: Props): JSX.Element => {
             </div>
           </div>
         ))}
+        <div className="text-xs text-gray-400 font-light tracking-tight leading-tight">
+          Last Updated: {new Date(protocol.lastUpdatedAt).toLocaleString()}
+        </div>
     </div>
   );
 });
