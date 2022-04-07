@@ -4,6 +4,8 @@ import { NetworkSummary } from '../interfaces/network-summary.interface';
 import { RootStore } from './RootStore';
 
 export class ProtocolStore {
+  public initialized = false;
+  public lastUpdatedAt = Date.now();
   public networks: Record<string, NetworkSummary>;
 
   constructor(private store: RootStore) {
@@ -24,6 +26,9 @@ export class ProtocolStore {
         return [n, summary];
       }),
     );
+
+    setInterval(async () => this.loadProtocolData(), 60_000);
+
     makeAutoObservable(this);
   }
 
@@ -46,5 +51,7 @@ export class ProtocolStore {
         );
       } catch {} // some network are not supported
     }
+    this.initialized = true;
+    this.lastUpdatedAt = Date.now();
   }
 }

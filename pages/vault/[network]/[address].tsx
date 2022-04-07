@@ -42,6 +42,7 @@ import { useState } from 'react';
 import { VaultHarvestInfo } from '../../../interfaces/vault-harvest-info.interface';
 import { RewardType } from '../../../enums/reward-type.enum';
 import { ethers } from 'ethers';
+import getStore from '../../../store';
 
 interface Props {
   vault: VaultDTO;
@@ -803,22 +804,16 @@ export async function getStaticProps({
 export async function getStaticPaths(): Promise<
   GetStaticPathsResult<VaultPathParms>
 > {
-  const api = new BadgerAPI({
-    network: 1,
-    baseURL: 'https://staging-api.badger.com/v2',
-  });
+  const { protocol } = getStore();
+  await protocol.loadProtocolData();
 
   let paths: { params: VaultPathParms }[] = [];
 
-  for (const network of Object.entries(Network)) {
-    try {
-      const [_key, value] = network;
-      const networkVaults = await api.loadVaults(Currency.USD, value);
-      const pathParams = networkVaults.map((v) => ({
-        params: { address: v.vaultToken, network: value },
-      }));
-      paths = paths.concat(pathParams);
-    } catch {} // some network are not supported
+  for (const network of Object.values(protocol.networks)) {
+    const pathParams = network.vaults.map((v) => ({
+      params: { address: v.vaultToken, network: network.network },
+    }));
+    paths = paths.concat(pathParams);
   }
 
   return {
