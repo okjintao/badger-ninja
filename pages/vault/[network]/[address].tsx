@@ -37,11 +37,12 @@ import {
   Transfer_OrderBy,
 } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { VaultTransfer } from '../../../interfaces/vault-transfer.interface';
-import { getChainExplorer } from '../../../utils';
+import { getChainExplorer, shortenAddress } from '../../../utils';
 import { useState } from 'react';
 import { VaultHarvestInfo } from '../../../interfaces/vault-harvest-info.interface';
 import { RewardType } from '../../../enums/reward-type.enum';
 import { ethers } from 'ethers';
+import getStore from '../../../store';
 
 interface Props {
   vault: VaultDTO;
@@ -109,11 +110,6 @@ function VaultInformation({
     yieldApr,
     harvestApr,
   } = yieldProjection;
-  const shortenAddress = (address: string, length = 4) =>
-    address
-      .slice(0, length)
-      .concat('...')
-      .concat(address.slice(address.length - length));
   const toExplorerLink = (address: string) =>
     `${getChainExplorer(network)}/address/${address}`;
   const toReadableFee = (fee: number) => `${fee / 100}%`;
@@ -785,7 +781,7 @@ export async function getStaticProps({
           amount,
           value,
           duration,
-          apr,
+          apr: isNaN(apr) ? 0 : apr,
           timestamp: start.timestamp,
           hash: d.id.split('-')[0],
         });
@@ -808,22 +804,16 @@ export async function getStaticProps({
 export async function getStaticPaths(): Promise<
   GetStaticPathsResult<VaultPathParms>
 > {
-  const api = new BadgerAPI({
-    network: 1,
-    baseURL: 'https://staging-api.badger.com/v2',
-  });
+  const { protocol } = getStore();
+  await protocol.loadProtocolData();
 
   let paths: { params: VaultPathParms }[] = [];
 
-  for (const network of Object.entries(Network)) {
-    try {
-      const [_key, value] = network;
-      const networkVaults = await api.loadVaults(Currency.USD, value);
-      const pathParams = networkVaults.map((v) => ({
-        params: { address: v.vaultToken, network: value },
-      }));
-      paths = paths.concat(pathParams);
-    } catch {} // some network are not supported
+  for (const network of Object.values(protocol.networks)) {
+    const pathParams = network.vaults.map((v) => ({
+      params: { address: v.vaultToken, network: network.network },
+    }));
+    paths = paths.concat(pathParams);
   }
 
   return {

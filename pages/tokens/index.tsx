@@ -1,6 +1,6 @@
-import { BadgerAPI, Network, Currency, VaultState } from '@badger-dao/sdk';
 import { GetStaticPropsResult } from 'next';
 import { NetworkSummary } from '../../interfaces/network-summary.interface';
+import getStore from '../../store';
 import { getChainExplorer } from '../../utils';
 
 interface Props {
@@ -73,32 +73,11 @@ function Tokens({ networks }: Props): JSX.Element {
 }
 
 export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
-  const api = new BadgerAPI({
-    network: 1,
-    baseURL: 'https://staging-api.badger.com/v2',
-  });
-
-  const networks = [];
-  for (const network of Object.values(Network)) {
-    try {
-      const networkVaults = await api.loadVaults(Currency.USD, network);
-      networks.push({
-        name: network
-          .split('-')
-          .map((i) => i.charAt(0).toUpperCase() + i.slice(1))
-          .join(' '),
-        vaults: networkVaults.filter((v) => v.state !== VaultState.Deprecated),
-        tvl: networkVaults.reduce((total, v) => (total += v.value), 0),
-        tokens: await api.loadTokens(network),
-        prices: await api.loadPrices(Currency.USD, network),
-        network,
-      });
-    } catch {} // some network are not supported
-  }
-
+  const { protocol } = getStore();
+  await protocol.loadProtocolData();
   return {
     props: {
-      networks,
+      networks: Object.values(protocol.networks),
     },
   };
 }
