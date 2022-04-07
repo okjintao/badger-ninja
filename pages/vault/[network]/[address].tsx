@@ -780,7 +780,7 @@ export async function getStaticProps({
           amount,
           value,
           duration,
-          apr,
+          apr: isNaN(apr) ? 0 : apr,
           timestamp: start.timestamp,
           hash: d.id.split('-')[0],
         });

@@ -64,7 +64,7 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
       networkVaults
         .filter(
           (v) =>
-            v.state !== VaultState.Deprecated &&
+            v.state !== VaultState.Discontinued &&
             v.version === VaultVersion.v1_5,
         )
         .forEach((v) => {

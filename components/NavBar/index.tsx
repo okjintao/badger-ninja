@@ -5,7 +5,7 @@ import NavLink from './NavLink';
 function NavBar(): JSX.Element {
   return (
     <div className="flex w-full bg-calm shadow-lg border-b border-foam h-24 justify-center">
-      <div className="flex flex-col mx-4 md:mx-0 w-full md:w-5/6 mt-3 mb-2">
+      <div className="flex flex-col mx-4 md:mx-0 w-full md:w-5/6 mt-3">
         <div className="flex w-full">
           <div
             className="mr-6 cursor-pointer flex items-center"
@@ -15,12 +15,14 @@ function NavBar(): JSX.Element {
           </div>
         </div>
         <div className="flex w-full justify-between items-center mt-auto">
-          <div className="flex">
+          <div className="flex h-full">
             <NavLink href="/" text="Overview" />
             <NavLink href="/monitor" text="Monitor" />
             <NavLink href="/tokens" text="Tokens" />
           </div>
-          <ConnectButton />
+          <div className="mb-2">
+            <ConnectButton />
+          </div>
         </div>
       </div>
     </div>
