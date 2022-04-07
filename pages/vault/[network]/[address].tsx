@@ -37,7 +37,7 @@ import {
   Transfer_OrderBy,
 } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { VaultTransfer } from '../../../interfaces/vault-transfer.interface';
-import { getChainExplorer } from '../../../utils';
+import { getChainExplorer, shortenAddress } from '../../../utils';
 import { useState } from 'react';
 import { VaultHarvestInfo } from '../../../interfaces/vault-harvest-info.interface';
 import { RewardType } from '../../../enums/reward-type.enum';
@@ -109,11 +109,6 @@ function VaultInformation({
     yieldApr,
     harvestApr,
   } = yieldProjection;
-  const shortenAddress = (address: string, length = 4) =>
-    address
-      .slice(0, length)
-      .concat('...')
-      .concat(address.slice(address.length - length));
   const toExplorerLink = (address: string) =>
     `${getChainExplorer(network)}/address/${address}`;
   const toReadableFee = (fee: number) => `${fee / 100}%`;

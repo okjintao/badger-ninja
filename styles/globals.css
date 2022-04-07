@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 @layer utilities {
-  @variants responsive {
-    .text-shadow {
-      text-shadow: 1px 1px 10px #04b0e1;
-    }
+  .text-shadow {
+    text-shadow: 1px 1px 10px #04b0e1;
   }
 }
