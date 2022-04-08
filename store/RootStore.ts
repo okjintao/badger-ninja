@@ -6,7 +6,6 @@ export class RootStore {
   public sdk = new BadgerSDK({
     network: CHAIN_ID,
     provider: '',
-    baseURL: 'https://staging-api.badger.com/v2',
   });
 
   public protocol: ProtocolStore;
