@@ -669,7 +669,6 @@ export async function getStaticProps({
   const sdk = new BadgerSDK({
     network,
     provider: '',
-    baseURL: 'https://staging-api.badger.com/v2',
   });
   const { api, graph, config } = sdk;
   const tokens = await api.loadTokens();
