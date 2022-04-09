@@ -29,6 +29,7 @@ import { ethers } from 'ethers';
 import getStore from '../../../store';
 import VaultSummary from '../../../components/VaultSummary';
 import VaultChart from '../../../components/VaultChart';
+import { BigNumber } from '@badger-dao/sdk/node_modules/ethers';
 
 interface Props {
   vault: VaultDTO;
@@ -263,7 +264,7 @@ function VaultInformation({
                   <div>
                     {h.amount.toFixed(3)} {h.token}
                   </div>
-                  <div>{h.apr.toFixed(2)}%</div>
+                  <div>{isNaN(h.apr) || !h.apr ? 0 : h.apr.toFixed(2)}%</div>
                   <div className="text-mint">
                     <a
                       className="flex"
@@ -508,16 +509,29 @@ export async function getStaticProps({
     const end = settHarvests[i + 1];
     const duration = start.timestamp - end.timestamp;
     const underlyingDecimals = tokens[vault.underlyingToken].decimals;
-    const amount = formatBalance(start.amount, underlyingDecimals);
+    const isDigg =
+      start.token.id ===
+      '0x798D1bE841a82a273720CE31c822C61a67a601C3'.toLowerCase();
+    let tokenAmount = BigNumber.from(start.amount);
+    if (isDigg) {
+      tokenAmount = tokenAmount.div(
+        '222256308823765331027878635805365830922307440079959220679625904457',
+      );
+    }
+    const amount = formatBalance(tokenAmount, underlyingDecimals);
     const value = amount * prices[vault.underlyingToken] ?? 0;
     const vaultSnapshot = await graph.loadSett({
       id: address.toLowerCase(),
       block: { number: Number(start.blockNumber) },
     });
-    const balance =
-      vaultSnapshot.sett?.strategy?.balance ?? vaultSnapshot.sett?.balance;
+    let balanceAmount = 0;
+    if (!isDigg && vaultSnapshot.sett?.strategy?.balance) {
+      balanceAmount = vaultSnapshot.sett?.strategy?.balance;
+    } else {
+      balanceAmount = vaultSnapshot.sett?.balance;
+    }
     const balanceValue =
-      formatBalance(balance, underlyingDecimals) *
+      formatBalance(balanceAmount, underlyingDecimals) *
       prices[vault.underlyingToken];
     const apr = (value / balanceValue) * (31536000 / duration) * 100;
     if (!BLACKLIST_HARVESTS.includes(address)) {
@@ -544,7 +558,16 @@ export async function getStaticProps({
           // bsc and arb is apparently acting weird
           return;
         }
-        const amount = formatBalance(d.amount, emissionToken.decimals);
+        let tokenAmount = BigNumber.from(d.amount);
+        if (
+          d.token.id ===
+          '0x798D1bE841a82a273720CE31c822C61a67a601C3'.toLowerCase()
+        ) {
+          tokenAmount = tokenAmount.div(
+            '222256308823765331027878635805365830922307440079959220679625904457',
+          );
+        }
+        const amount = formatBalance(tokenAmount, emissionToken.decimals);
         const value =
           amount * prices[ethers.utils.getAddress(emissionToken.address)] ?? 0;
         const apr = (value / balanceValue) * (31536000 / duration) * 100;
