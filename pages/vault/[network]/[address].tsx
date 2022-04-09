@@ -1,14 +1,10 @@
 import BadgerSDK, {
-  BadgerAPI,
-  BadgerGraph,
   ChartGranularity,
-  Currency,
   EmissionSchedule,
   formatBalance,
   Network,
   PriceSummary,
   VaultDTO,
-  VaultHarvestData,
   VaultSnapshot,
   VaultVersion,
 } from '@badger-dao/sdk';
@@ -19,18 +15,6 @@ import {
 } from 'next';
 import VaultStatistic from '../../../components/VaultStatistic';
 import {
-  Area,
-  ComposedChart,
-  Legend,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import { timeFormat } from 'd3-time-format';
-import { format } from 'd3-format';
-import {
   BadgerTreeDistribution_OrderBy,
   OrderDirection,
   SettHarvest_OrderBy,
@@ -38,11 +22,13 @@ import {
 } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { VaultTransfer } from '../../../interfaces/vault-transfer.interface';
 import { getChainExplorer, shortenAddress } from '../../../utils';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { VaultHarvestInfo } from '../../../interfaces/vault-harvest-info.interface';
 import { RewardType } from '../../../enums/reward-type.enum';
 import { ethers } from 'ethers';
 import getStore from '../../../store';
+import VaultSummary from '../../../components/VaultSummary';
+import VaultChart from '../../../components/VaultChart';
 
 interface Props {
   vault: VaultDTO;
@@ -76,32 +62,8 @@ function VaultInformation({
     style: 'currency',
     currency: 'USD',
   });
-  const {
-    name,
-    value,
-    pricePerFullShare,
-    vaultAsset,
-    asset,
-    balance,
-    available,
-    lastHarvest,
-    version,
-    protocol,
-    underlyingToken,
-    vaultToken,
-    strategy,
-    minApr,
-    maxApr,
-    apr,
-    yieldProjection,
-  } = vault;
-  const {
-    address: strategyAddress,
-    performanceFee,
-    strategistFee,
-    withdrawFee,
-    aumFee,
-  } = strategy;
+  const { version, protocol, state, minApr, maxApr, apr, yieldProjection } =
+    vault;
   const {
     harvestValue,
     yieldValue,
@@ -110,62 +72,6 @@ function VaultInformation({
     yieldApr,
     harvestApr,
   } = yieldProjection;
-  const toExplorerLink = (address: string) =>
-    `${getChainExplorer(network)}/address/${address}`;
-  const toReadableFee = (fee: number) => `${fee / 100}%`;
-  const valueFormatter = format('^$.3s');
-
-  function legendFormatter(value: string): string {
-    switch (value) {
-      case 'value':
-        return 'TVL';
-      case 'yieldApr':
-        return 'Spot APR';
-      case 'harvestApr':
-        return 'Projected APR';
-      default:
-        return '21 day APR';
-    }
-  }
-
-  function tooltipFormatter(value: number, name: string): [string, string] {
-    switch (name) {
-      case 'value':
-        return [valueFormatter(value), 'TVL'];
-      case 'yieldApr':
-        return [`${value.toFixed(2)}%`, 'Spot'];
-      case 'harvestApr':
-        return [`${value.toFixed(2)}%`, 'Projected'];
-      default:
-        return [`${value.toFixed(2)}%`, 'APR'];
-    }
-  }
-
-  let minYield = Number.MAX_VALUE;
-  let maxYield = Number.MIN_VALUE;
-
-  chartData.forEach((d) => {
-    if (d.apr < minYield) {
-      minYield = d.apr;
-    }
-    if (d.apr > maxYield) {
-      maxYield = d.apr;
-    }
-    if (version === VaultVersion.v1_5) {
-      if (d.yieldApr < minYield) {
-        minYield = d.yieldApr;
-      }
-      if (d.harvestApr < minYield) {
-        minYield = d.harvestApr;
-      }
-      if (d.yieldApr > maxYield) {
-        maxYield = d.yieldApr;
-      }
-      if (d.harvestApr > maxYield) {
-        maxYield = d.harvestApr;
-      }
-    }
-  });
 
   const toAprRange = (apy: number, minApr?: number, maxApr?: number) =>
     minApr && maxApr && minApr !== maxApr
@@ -225,140 +131,8 @@ function VaultInformation({
 
   return (
     <div className="flex flex-grow flex-col w-full md:11/12 lg:w-5/6 xl:w-3/4 text-gray-300 pb-10 mx-auto">
-      <div className="bg-calm mt-4 md:mt-8 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
-        <div className="text-sm text-gray-400">Vault Information</div>
-        <div className="text-3xl font-semibold text-white">
-          {name} - ${value.toLocaleString()}
-        </div>
-        <div className="text-xs text-gray-400">{version}</div>
-        <div className="mt-4 mb-2 grid grid-cols-2 lg:grid-cols-4">
-          <VaultStatistic title="Protocol" value={protocol} />
-          <VaultStatistic
-            title="Last Harvest"
-            value={new Date(lastHarvest * 1000).toLocaleString()}
-          />
-          <VaultStatistic
-            title={`${asset} per ${vaultAsset}`}
-            value={pricePerFullShare}
-          />
-          <VaultStatistic title="Balance" value={balance} />
-          <VaultStatistic title="Available" value={available} />
-          <VaultStatistic
-            title="Deposit Token"
-            value={shortenAddress(underlyingToken)}
-            link={toExplorerLink(underlyingToken)}
-          />
-          <VaultStatistic
-            title="Vault Token"
-            value={shortenAddress(vaultToken)}
-            link={toExplorerLink(vaultToken)}
-          />
-          <VaultStatistic
-            title="Strategy"
-            value={shortenAddress(strategyAddress)}
-            link={toExplorerLink(strategyAddress)}
-          />
-          <VaultStatistic
-            title="Performance Fee"
-            value={toReadableFee(performanceFee)}
-          />
-          <VaultStatistic
-            title="Strategist Fee"
-            value={toReadableFee(strategistFee)}
-          />
-          <VaultStatistic
-            title="Withdraw Fee"
-            value={toReadableFee(withdrawFee)}
-          />
-          <VaultStatistic
-            title="Management Fee"
-            value={toReadableFee(aumFee)}
-          />
-        </div>
-      </div>
-      <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
-        <div className="text-sm text-gray-400 mb-4">Vault History</div>
-        <ResponsiveContainer height={350}>
-          <ComposedChart data={chartData}>
-            <Legend formatter={legendFormatter} />
-            <Tooltip
-              formatter={tooltipFormatter}
-              labelFormatter={timeFormat('%B %d, %Y')}
-            />
-            <XAxis
-              dataKey="timestamp"
-              type="number"
-              domain={['dataMin', 'dataMax']}
-              tickFormatter={timeFormat('%m-%d')}
-              tickLine={false}
-              axisLine={false}
-              style={{ fill: 'white' }}
-              tickCount={10}
-            />
-            <YAxis
-              dataKey="value"
-              yAxisId="value"
-              axisLine={false}
-              tickLine={false}
-              type="number"
-              domain={['auto', 'auto']}
-              tickCount={10}
-              minTickGap={50}
-              tickFormatter={valueFormatter}
-              style={{ fill: 'white' }}
-            />
-            <YAxis
-              dataKey="apr"
-              yAxisId="yieldApr"
-              orientation="right"
-              axisLine={false}
-              tickLine={false}
-              type="number"
-              domain={[minYield * 0.95, maxYield * 1.05]}
-              tickCount={10}
-              minTickGap={50}
-              tickFormatter={(v: number) => `${v.toFixed(1)}%`}
-              style={{ fill: 'white' }}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              fill="#707793"
-              stroke="#707793"
-              yAxisId="value"
-              strokeWidth={2}
-            />
-            <Line
-              type="monotone"
-              dataKey="apr"
-              fill="#292929"
-              stroke="#292929"
-              yAxisId="yieldApr"
-              strokeWidth={1.5}
-            />
-            {version === VaultVersion.v1_5 && (
-              <>
-                <Line
-                  type="monotone"
-                  dataKey="yieldApr"
-                  fill="gray"
-                  stroke="gray"
-                  yAxisId="yieldApr"
-                  strokeWidth={1.5}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="harvestApr"
-                  fill="#3bba9c"
-                  stroke="#3bba9c"
-                  yAxisId="yieldApr"
-                  strokeWidth={1.5}
-                />
-              </>
-            )}
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
+      <VaultSummary network={network} vault={vault} />
+      <VaultChart chartData={chartData} vault={vault} />
       {version === VaultVersion.v1_5 && (
         <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
           <div className="text-sm text-gray-400">Vault Harvest Health</div>

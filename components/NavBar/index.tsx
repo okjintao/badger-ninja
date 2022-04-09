@@ -6,13 +6,27 @@ function NavBar(): JSX.Element {
   return (
     <div className="flex w-full bg-calm shadow-lg border-b border-foam h-24 justify-center">
       <div className="flex flex-col mx-4 md:mx-0 w-full md:w-5/6 mt-3">
-        <div className="flex w-full">
+        <div className="flex w-full justify-between items-center">
           <div
-            className="mr-6 cursor-pointer flex items-center"
+            className="mr-6 cursor-pointer flex items-center flex-grow"
             onClick={() => window.open('https://app.badger.com')}
           >
             <Image src={'/icon/badger-head.png'} width={25} height={25} />
           </div>
+          <>
+            <div
+              className="mx-1 flex items-center cursor-pointer"
+              onClick={() => window.open('https://discord.gg/5S26srvtmC')}
+            >
+              <Image src="/icon/discord.svg" width={15} height={15} />
+            </div>
+            <div
+              className="mx-1 flex items-center cursor-pointer"
+              onClick={() => window.open('https://twitter.com/badgerdao')}
+            >
+              <Image src="/icon/twitter.svg" width={15} height={15} />
+            </div>
+          </>
         </div>
         <div className="flex w-full justify-between items-center mt-auto">
           <div className="flex h-full">
