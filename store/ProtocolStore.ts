@@ -35,6 +35,10 @@ export class ProtocolStore {
   async loadProtocolData() {
     const { sdk } = this.store;
     for (const network of Object.values(Network)) {
+      if (network === Network.xDai || network === Network.Local) {
+        continue;
+      }
+
       try {
         const networkVaults = await sdk.api.loadVaults(Currency.USD, network);
         this.networks[network].vaults = networkVaults.filter(

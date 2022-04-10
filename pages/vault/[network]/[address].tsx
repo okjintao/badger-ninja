@@ -30,6 +30,8 @@ import getStore from '../../../store';
 import VaultSummary from '../../../components/VaultSummary';
 import VaultChart from '../../../components/VaultChart';
 import { BigNumber } from '@badger-dao/sdk/node_modules/ethers';
+import VaultAprSources from '../../../components/VaultAprSources';
+import VaultSchedules from '../../../components/VaultSchedules';
 
 interface Props {
   vault: VaultDTO;
@@ -63,7 +65,7 @@ function VaultInformation({
     style: 'currency',
     currency: 'USD',
   });
-  const { version, protocol, state, minApr, maxApr, apr, yieldProjection } =
+  const { version, protocol, yieldProjection } =
     vault;
   const {
     harvestValue,
@@ -74,52 +76,6 @@ function VaultInformation({
     harvestApr,
   } = yieldProjection;
 
-  const toAprRange = (apy: number, minApr?: number, maxApr?: number) =>
-    minApr && maxApr && minApr !== maxApr
-      ? `${minApr.toFixed(2)}% - ${maxApr.toFixed(2)}%`
-      : `${apy.toFixed(2)}%`;
-  const currentYieldDisplay = toAprRange(apr, minApr, maxApr);
-
-  let yieldDisplay: React.ReactNode;
-  if (vault.sourcesApy.length > 0) {
-    yieldDisplay = vault.sources.map((s) => (
-      <VaultStatistic
-        key={s.name}
-        title={s.name}
-        value={toAprRange(s.apr, s.minApr, s.maxApr)}
-      />
-    ));
-  } else {
-    yieldDisplay = (
-      <div className="text-sm mt-4 text-gray-300">
-        {vault.name} has no recorded yield sources.
-      </div>
-    );
-  }
-
-  const hasEmissionSchedules = schedules.length > 0;
-  let emissionDisplay: React.ReactNode;
-  if (hasEmissionSchedules) {
-    emissionDisplay = schedules.map((s) => {
-      const title = `${s.token} (${s.compPercent}% complete)`;
-      const start = new Date(s.start * 1000).toLocaleDateString();
-      const end = new Date(s.end * 1000).toLocaleDateString();
-      return (
-        <VaultStatistic
-          key={`${s.token}-emission`}
-          title={title}
-          value={s.amount}
-          subtext={`${start} - ${end}`}
-        />
-      );
-    });
-  } else {
-    emissionDisplay = (
-      <div className="text-sm mt-4 text-gray-300">
-        {vault.name} has no active emission schedules.
-      </div>
-    );
-  }
 
   const realizedHarvestPercent =
     version === VaultVersion.v1_5 ? (harvestValue / yieldValue) * 100 : 0;
@@ -204,40 +160,8 @@ function VaultInformation({
         </div>
       )}
       <div className="mt-4 mx-2 md:mx-0 grid grid-cols-1 md:grid-cols-2">
-        <div className="bg-calm p-3 md:mr-2 rounded-lg">
-          <div className="text-sm text-gray-400">Vault APR Sources</div>
-          <div className="text-xs mt-2">What are Vault APR Sources?</div>
-          <div className="text-xs mt-1 mb-1 text-gray-400">
-            Vault APR Sources are a 21 day TWAY (Time Weighted Average Yield) of
-            the vault given fluctations in yield and TVL. This value will almost
-            never match the spot yield, and reflects a more long term yield
-            history of the vault.
-          </div>
-          <div className="text-xl font-semibold text-white">
-            {currentYieldDisplay}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2">{yieldDisplay}</div>
-        </div>
-        <div className="bg-calm p-3 md:ml-2 rounded-lg mt-4 md:mt-0">
-          <div className="text-sm text-gray-400">Vault Emission Schedules</div>
-          <div className="text-xs mt-2">What are Emission Schedules?</div>
-          <div className="text-xs mt-1 mb-1 text-gray-400">
-            Emission schedules are how Badger distributes rewards to depositors.
-            A set number of a specific token is distributed to the vault over
-            any given duration. These tokens are distributed either pro rata or
-            in a boosted manner dependent on the token emitted.
-          </div>
-          <div className="text-xl font-semibold text-white">
-            {schedules.length} Active Schedules
-          </div>
-          <div
-            className={`grid grid-cols-1 ${
-              hasEmissionSchedules ? 'md:grid-cols-2' : ''
-            }`}
-          >
-            {emissionDisplay}
-          </div>
-        </div>
+        <VaultAprSources vault={vault} />
+        <VaultSchedules vault={vault} schedules={schedules} />
       </div>
       <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
         <div className="text-sm text-gray-400">Vault Harvest History</div>

@@ -1,13 +1,16 @@
+import { Network, NetworkConfig } from '@badger-dao/sdk';
 import { toast } from 'react-toastify';
 
 // https://docs.metamask.io/guide/rpc-api.html#other-rpc-methods
-// export async function switchOrAddNetwork(chain: Chain): Promise<boolean> {
+// export async function switchOrAddNetwork(network: Network): Promise<boolean> {
+//   const config = NetworkConfig.getConfig(network);
+//   const { id } = config;
 //   const { ethereum } = window;
 //   if (ethereum) {
 //     try {
 //       await ethereum.request({
 //         method: 'wallet_switchEthereumChain',
-//         params: [{ chainId: chain.chainId }],
+//         params: [{ chainId: id }],
 //       });
 //       return true;
 //     } catch (error) {
@@ -18,7 +21,7 @@ import { toast } from 'react-toastify';
 //             method: 'wallet_addEthereumChain',
 //             params: [
 //               {
-//                 chainId: `0x${chain.chainId}`,
+//                 chainId: `0x${id}`,
 //                 chainName: chain.name,
 //                 nativeCurrency: {
 //                   name: chain.network.toUpperCase(),
