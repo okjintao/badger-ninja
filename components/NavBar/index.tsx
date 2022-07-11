@@ -1,8 +1,12 @@
+import { observer } from 'mobx-react-lite';
 import Image from 'next/image';
+import { useContext } from 'react';
+import { StoreContext } from '../../store/StoreContext';
 import ConnectButton from '../ConnectButton';
 import NavLink from './NavLink';
 
-function NavBar(): JSX.Element {
+const NavBar = observer((): JSX.Element => {
+  const { updatedAt } = useContext(StoreContext);
   return (
     <div className="flex w-full bg-slate shadow-xl h-24 justify-center">
       <div className="flex flex-col mx-4 md:mx-0 w-full md:w-5/6 mt-3">
@@ -14,6 +18,7 @@ function NavBar(): JSX.Element {
             <Image src={'/icon/badger-head.png'} width={25} height={25} />
           </div>
           <>
+            <div className='text-xs text-gray-300 mr-2'>Updated at: {new Date(updatedAt).toLocaleString()}</div>
             <div
               className="mx-1 flex items-center cursor-pointer"
               onClick={() => window.open('https://discord.gg/5S26srvtmC')}
@@ -41,6 +46,6 @@ function NavBar(): JSX.Element {
       </div>
     </div>
   );
-}
+});
 
 export default NavBar;

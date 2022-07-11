@@ -13,6 +13,13 @@ import '../styles/globals.css';
 function BadgerNinja({ Component, pageProps }: AppProps): JSX.Element {
   const store = getStore();
 
+  useEffect(() => {
+    async function updateApp() {
+      await store.updateData();
+    }
+    updateApp();
+  }, []);
+
   return (
     <>
       <Head>
