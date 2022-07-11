@@ -1,41 +1,40 @@
-import { Currency, Network, VaultState } from '@badger-dao/sdk';
+import { Currency, Network, ONE_MIN_MS, VaultState } from '@badger-dao/sdk';
 import { makeAutoObservable } from 'mobx';
 import { NetworkSummary } from '../interfaces/network-summary.interface';
 import { RootStore } from './RootStore';
 
 export class ProtocolStore {
   public initialized = false;
-  public lastUpdatedAt = Date.now();
-  public networks: Record<string, NetworkSummary>;
+  public networks: Record<string, NetworkSummary> = Object.fromEntries(
+    Object.values(Network).map((n) => {
+      const networkName = n
+        .split('-')
+        .map((i) => i.charAt(0).toUpperCase() + i.slice(1))
+        .join(' ');
+      const summary: NetworkSummary = {
+        vaults: [],
+        tvl: 0,
+        name: networkName,
+        network: n,
+        tokens: {},
+        prices: {},
+      };
+      return [n, summary];
+    }),
+  );
 
   constructor(private store: RootStore) {
-    this.networks = Object.fromEntries(
-      Object.values(Network).map((n) => {
-        const networkName = n
-          .split('-')
-          .map((i) => i.charAt(0).toUpperCase() + i.slice(1))
-          .join(' ');
-        const summary: NetworkSummary = {
-          vaults: [],
-          tvl: 0,
-          name: networkName,
-          network: n,
-          tokens: {},
-          prices: {},
-        };
-        return [n, summary];
-      }),
-    );
-
-    setInterval(async () => this.loadProtocolData(), 60_000);
-
     makeAutoObservable(this);
+    setInterval(async () => this.loadProtocolData(), ONE_MIN_MS);
   }
 
   async loadProtocolData() {
+    if (Date.now() - this.store.updatedAt < ONE_MIN_MS) {
+      return;
+    }
     const { sdk } = this.store;
     for (const network of Object.values(Network)) {
-      if (network === Network.Local) {
+      if (network === Network.Local || network == Network.Optimism) {
         continue;
       }
 
@@ -56,6 +55,5 @@ export class ProtocolStore {
       } catch {} // some network are not supported
     }
     this.initialized = true;
-    this.lastUpdatedAt = Date.now();
   }
 }

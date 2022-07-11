@@ -1,17 +1,18 @@
 import { GetStaticPropsResult } from 'next';
+import { useContext } from 'react';
 import { NetworkSummary } from '../../interfaces/network-summary.interface';
 import getStore from '../../store';
+import { StoreContext } from '../../store/StoreContext';
 import { getChainExplorer } from '../../utils';
 
-interface Props {
-  networks: NetworkSummary[];
-}
 
-function Tokens({ networks }: Props): JSX.Element {
+function Tokens(): JSX.Element {
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   });
+  const { protocol } = useContext(StoreContext);
+  const networks: NetworkSummary[] = protocol.initialized ? Object.values(protocol.networks) : [];
   return (
     <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto">
       <div className="my-2 w-full">
@@ -70,16 +71,6 @@ function Tokens({ networks }: Props): JSX.Element {
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps(): Promise<GetStaticPropsResult<Props>> {
-  const { protocol } = getStore();
-  await protocol.loadProtocolData();
-  return {
-    props: {
-      networks: Object.values(protocol.networks),
-    },
-  };
 }
 
 export default Tokens;

@@ -53,6 +53,9 @@ export async function getServerSideProps(): Promise<GetStaticPropsResult<Props>>
   const healthyVaults: VaultHarvestSummary[] = [];
 
   for (const network of Object.values(Network)) {
+    if (network === Network.Local || network == Network.Optimism) {
+      continue;
+    }
     try {
       const networkVaults = await store.sdk.api.loadVaults(Currency.USD, network);
       const networkName = network

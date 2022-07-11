@@ -5,7 +5,7 @@ import { ProtocolStore } from './ProtocolStore';
 import { UserStore } from './UserStore';
 
 export class RootStore {
-  public updatedAt = Date.now();
+  public updatedAt = 0;
   public sdk = new BadgerSDK({
     network: CHAIN_ID,
     provider: '',
@@ -21,6 +21,11 @@ export class RootStore {
   }
 
   async updateData() {
+    console.log('Updating data!');
+    await Promise.all([
+      this.protocol.loadProtocolData(),
+    ]);
     this.updatedAt = Date.now();
+    console.log(`Updated at: ${this.updatedAt}`);
   }
 }
