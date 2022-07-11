@@ -3,6 +3,7 @@ import { makeAutoObservable } from 'mobx';
 import { CHAIN_ID } from '../config/constants';
 import { ProtocolStore } from './ProtocolStore';
 import { UserStore } from './UserStore';
+import { VaultStore } from './VaultStore';
 
 export class RootStore {
   public updatedAt = 0;
@@ -13,19 +14,19 @@ export class RootStore {
 
   public protocol: ProtocolStore;
   public user: UserStore;
+  public vaults: VaultStore;
 
   constructor() {
     this.protocol = new ProtocolStore(this);
     this.user = new UserStore(this);
+    this.vaults = new VaultStore(this);
     makeAutoObservable(this);
   }
 
   async updateData() {
-    console.log('Updating data!');
-    await Promise.all([
-      this.protocol.loadProtocolData(),
-    ]);
+    await this.protocol.loadProtocolData();
+    const { networks } = this.protocol;
+    await Promise.all(Object.values(networks).flatMap((n) => n.vaults.map((v) => this.vaults.loadVaultData(n.network, v.vaultToken))));
     this.updatedAt = Date.now();
-    console.log(`Updated at: ${this.updatedAt}`);
   }
 }
