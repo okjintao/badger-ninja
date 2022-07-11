@@ -20,7 +20,7 @@ function Tokens({ networks }: Props): JSX.Element {
           return (
             <div
               key={name}
-              className="flex flex-col my-2 bg-calm p-2 rounded large mx-2 lg:mx-0"
+              className="flex flex-col my-2 bg-card p-2 rounded large mx-2 lg:mx-0"
             >
               <span className="text-xl">{name}</span>
               <span className="text-xs text-gray-400">
@@ -72,7 +72,7 @@ function Tokens({ networks }: Props): JSX.Element {
   );
 }
 
-export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
+export async function getServerSideProps(): Promise<GetStaticPropsResult<Props>> {
   const { protocol } = getStore();
   await protocol.loadProtocolData();
   return {

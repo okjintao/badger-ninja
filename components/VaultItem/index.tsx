@@ -40,7 +40,7 @@ function VaultItem({ vault }: Props): JSX.Element {
     hasYieldRange ? ` - ${maxYield.toFixed(2)}%` : ''
   }`;
   return (
-    <div className="flex flex-col bg-calm rounded-lg m-2 p-4 shadow-md hover:bg-foam cursor-pointer">
+    <div className="flex flex-col bg-card rounded-lg m-2 p-4 shadow-md hover:bg-foam cursor-pointer">
       <div className="flex justify-between items-end">
         <div className="text-lg">{name}</div>
         <div className="text-sm">{protocol}</div>

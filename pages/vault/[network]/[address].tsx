@@ -9,6 +9,8 @@ import BadgerSDK, {
   VaultVersion,
 } from '@badger-dao/sdk';
 import {
+  GetServerSidePropsContext,
+  GetServerSidePropsResult,
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
@@ -32,6 +34,8 @@ import VaultChart from '../../../components/VaultChart';
 import { BigNumber } from '@badger-dao/sdk/node_modules/ethers';
 import VaultAprSources from '../../../components/VaultAprSources';
 import VaultSchedules from '../../../components/VaultSchedules';
+import VaultHarvestHealth from '../../../components/VaultHarvestHealth';
+import VaultHarvestHistory from '../../../components/VaultHarvestHistory';
 
 interface Props {
   vault: VaultDTO;
@@ -65,23 +69,7 @@ function VaultInformation({
     style: 'currency',
     currency: 'USD',
   });
-  const { version, protocol, yieldProjection } =
-    vault;
-  const {
-    harvestValue,
-    yieldValue,
-    yieldTokens,
-    harvestTokens,
-    yieldApr,
-    harvestApr,
-  } = yieldProjection;
-
-
-  const realizedHarvestPercent =
-    version === VaultVersion.v1_5 ? (harvestValue / yieldValue) * 100 : 0;
-
-  const maxHarvestPages = harvests.length / PAGE_SIZE - 1;
-  const [harvestPage, setHarvestPage] = useState(0);
+  const { version } = vault;
 
   const maxPages = transfers.length / PAGE_SIZE - 1;
   const [page, setPage] = useState(0);
@@ -90,178 +78,14 @@ function VaultInformation({
     <div className="flex flex-grow flex-col w-full md:11/12 lg:w-5/6 xl:w-3/4 text-gray-300 pb-10 mx-auto">
       <VaultSummary network={network} vault={vault} />
       <VaultChart chartData={chartData} vault={vault} />
-      {version === VaultVersion.v1_5 && (
-        <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
-          <div className="text-sm text-gray-400">Vault Harvest Health</div>
-          <div
-            className={`text-xl ${
-              realizedHarvestPercent > 100
-                ? 'text-electric text-shadow'
-                : realizedHarvestPercent > 97
-                ? 'text-green-400'
-                : realizedHarvestPercent > 94
-                ? 'text-orange-400'
-                : 'text-red-400'
-            }`}
-          >
-            {realizedHarvestPercent.toFixed(2)}% Realized Yield
-          </div>
-          <div className="text-xs mt-2">What is Harvest Health?</div>
-          <div className="text-xs mt-1 text-gray-400">
-            Harvest health is a measure of a strategy performance. Pending yield
-            is the current yield being realized by the vault from the protocol
-            being farmed. Pending harvest is the current simulated yield being
-            realized by the vault when harvested. This measure most accurately
-            reflects the current yield the vault is experiencing with respect to
-            market conditions and other externalities.
-          </div>
-          <div className="grid grid-cols-2 mt-3">
-            <div className="flex flex-col">
-              <div className="text-xs">Pending Yield ({protocol})</div>
-              <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
-                {yieldTokens.map((t) => (
-                  <VaultStatistic
-                    key={`yield-${t.address}`}
-                    title={t.symbol}
-                    value={t.balance.toFixed(5)}
-                    subtext={
-                      <div className="text-xs text-gray-400">
-                        ${t.value.toFixed(2)}
-                      </div>
-                    }
-                  />
-                ))}
-              </div>
-              <div className="text-xs mt-2">
-                Total: {yieldValue.toFixed(2)} ({yieldApr.toFixed(2)}% APR)
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="text-xs">Pending Harvest</div>
-              <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
-                {harvestTokens.map((t) => (
-                  <VaultStatistic
-                    key={`harvest-${t.address}`}
-                    title={t.symbol}
-                    value={t.balance.toFixed(5)}
-                    subtext={
-                      <div className="text-xs text-gray-400">
-                        ${t.value.toFixed(2)}
-                      </div>
-                    }
-                  />
-                ))}
-              </div>
-              <div className="text-xs mt-2">
-                Total: {harvestValue.toFixed(2)} ({harvestApr.toFixed(2)}% APR)
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="mt-4 mx-2 md:mx-0 grid grid-cols-1 md:grid-cols-2">
+      {version === VaultVersion.v1_5 && <VaultHarvestHealth vault={vault} />}
+      <div className="mt-4 mx-2 lg:mx-0 grid grid-cols-1 md:grid-cols-2">
         <VaultAprSources vault={vault} />
         <VaultSchedules vault={vault} schedules={schedules} />
       </div>
-      <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
-        <div className="text-sm text-gray-400">Vault Harvest History</div>
-        <div className="mt-2">
-          <div className="md:grid hidden md:grid-cols-6 p-1">
-            <div>Date</div>
-            <div>Reward Type</div>
-            <div>Value</div>
-            <div>Amount</div>
-            <div>APR</div>
-            <div>Transaction</div>
-          </div>
-          {harvests
-            .slice(harvestPage * PAGE_SIZE, harvestPage + 1 * PAGE_SIZE + 1)
-            .map((h, i) => {
-              return (
-                <div
-                  key={`harvest-${h.token}-${i}`}
-                  className="grid grid-cols-1 md:grid-cols-6 py-1"
-                >
-                  <div>{new Date(h.timestamp * 1000).toLocaleString()}</div>
-                  <div>{h.rewardType}</div>
-                  <div>{formatter.format(h.value)}</div>
-                  <div>
-                    {h.amount.toFixed(3)} {h.token}
-                  </div>
-                  <div>{isNaN(h.apr) || !h.apr ? 0 : h.apr.toFixed(2)}%</div>
-                  <div className="text-mint">
-                    <a
-                      className="flex"
-                      href={`${getChainExplorer(network)}/tx/${h.hash}`}
-                      target="_blank"
-                    >
-                      {shortenAddress(h.hash, 8)}
-                      <svg
-                        className="ml-2 mt-1"
-                        fill="#3bba9c"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="15px"
-                        height="15px"
-                      >
-                        <path d="M 5 3 C 3.9069372 3 3 3.9069372 3 5 L 3 19 C 3 20.093063 3.9069372 21 5 21 L 19 21 C 20.093063 21 21 20.093063 21 19 L 21 12 L 19 12 L 19 19 L 5 19 L 5 5 L 12 5 L 12 3 L 5 3 z M 14 3 L 14 5 L 17.585938 5 L 8.2929688 14.292969 L 9.7070312 15.707031 L 19 6.4140625 L 19 10 L 21 10 L 21 3 L 14 3 z" />
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
-          <div className="flex my-2 justify-center items-center">
-            <svg
-              onClick={() => {
-                if (harvestPage > 0) {
-                  setHarvestPage(harvestPage - 1);
-                }
-              }}
-              xmlns="http://www.w3.org/2000/svg"
-              className={`h-5 w-5 ${
-                harvestPage > 0
-                  ? 'hover:text-mint cursor-pointer'
-                  : 'opacity-50'
-              }`}
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <div className="font-semibold font-gray-400 text-sm mx-2">
-              {harvestPage + 1}
-            </div>
-            <svg
-              onClick={() => {
-                if (harvestPage + 1 < maxHarvestPages) {
-                  setHarvestPage(harvestPage + 1);
-                }
-              }}
-              xmlns="http://www.w3.org/2000/svg"
-              className={`h-5 w-5 ${
-                harvestPage < maxHarvestPages
-                  ? 'hover:text-mint cursor-pointer'
-                  : 'opacity-50'
-              }`}
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
-        <div className="text-sm text-gray-400">Vault User History</div>
+      <VaultHarvestHistory network={network} harvests={harvests} />
+      <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
+        <div className="text-xs text-gray-400">Vault User History</div>
         <div className="mt-2">
           <div className="md:grid hidden md:grid-cols-4 p-1">
             <div>Date</div>
@@ -355,10 +179,11 @@ function VaultInformation({
   );
 }
 
-export async function getStaticProps({
+// TODO: FIX THIS!
+export async function getServerSideProps({
   params,
-}: GetStaticPropsContext<VaultPathParms>): Promise<
-  GetStaticPropsResult<Props>
+}: GetServerSidePropsContext<VaultPathParms>): Promise<
+  GetServerSidePropsResult<Props>
 > {
   if (!params) {
     throw new Error('Building page with no params!');
@@ -518,27 +343,6 @@ export async function getStaticProps({
       prices,
       harvests,
     },
-  };
-}
-
-export async function getStaticPaths(): Promise<
-  GetStaticPathsResult<VaultPathParms>
-> {
-  const { protocol } = getStore();
-  await protocol.loadProtocolData();
-
-  let paths: { params: VaultPathParms }[] = [];
-
-  for (const network of Object.values(protocol.networks)) {
-    const pathParams = network.vaults.map((v) => ({
-      params: { address: v.vaultToken, network: network.network },
-    }));
-    paths = paths.concat(pathParams);
-  }
-
-  return {
-    paths,
-    fallback: false,
   };
 }
 

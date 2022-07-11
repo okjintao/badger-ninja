@@ -13,12 +13,12 @@ function NavLink({ href, text }: Props): JSX.Element {
   return (
     <div
       className={`flex items-center justify-center border-b-2 mt-1 px-2${
-        isActive ? ' border-mint font-semibold' : ' border-calm'
+        isActive ? ' border-sea font-semibold' : ' border-slate'
       }`}
     >
       <Link href={href} passHref>
         <span
-          className={`text-sm uppercase cursor-pointer text-white hover:text-mint hover:font-semibold`}
+          className={`text-sm uppercase cursor-pointer text-white hover:text-sea hover:font-semibold`}
         >
           {text}
         </span>

@@ -35,7 +35,7 @@ export class ProtocolStore {
   async loadProtocolData() {
     const { sdk } = this.store;
     for (const network of Object.values(Network)) {
-      if (network === Network.xDai || network === Network.Local) {
+      if (network === Network.Local) {
         continue;
       }
 

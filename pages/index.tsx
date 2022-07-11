@@ -1,6 +1,6 @@
 import { BadgerAPI, Currency, Network, VaultState } from '@badger-dao/sdk';
 import { observer } from 'mobx-react-lite';
-import { GetStaticPropsResult } from 'next';
+import { GetServerSidePropsResult, GetStaticPropsResult } from 'next';
 import Link from 'next/link';
 import { useContext, useEffect } from 'react';
 import VaultItem from '../components/VaultItem';
@@ -17,26 +17,10 @@ const Landing = observer(({ networks }: Props): JSX.Element => {
   const networkData = protocol.initialized ? protocol.networks : networks;
 
   const allNetworks = Object.values(networkData).filter((n) => n.tvl > 0);
-  const allVaults = allNetworks.flatMap((v) => v.vaults);
-  const totalVaults = allVaults.length;
-  const totalValue = allVaults.reduce((total, v) => (total += v.value), 0);
-  const totalNetworks = allNetworks.length;
-  const valueApr = allVaults.reduce(
-    (total, v) => (total += v.value * v.apr),
-    0,
-  );
-  const protocolApr = valueApr / totalValue;
-  const totalValueDisplay = `$${totalValue.toLocaleString()}`;
   const networksByTVL = allNetworks.sort((a, b) => b.tvl - a.tvl);
-  const headerDisplay = `Badger has ${totalVaults} vaults farming ${totalValueDisplay} across ${totalNetworks} networks earning an average APR of ${protocolApr.toFixed(
-    2,
-  )}%`;
 
   return (
-    <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto">
-      <div className="text-mint font-semibold text-xl leading-tight tracking-tight p-2 mt-4 text-center">
-        {headerDisplay}
-      </div>
+    <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto pt-10">
       {networksByTVL
         .filter((n) => n.tvl > 0 && n.vaults.length > 0)
         .map((n) => (
@@ -59,14 +43,11 @@ const Landing = observer(({ networks }: Props): JSX.Element => {
             </div>
           </div>
         ))}
-        <div className="text-xs text-gray-400 font-light tracking-tight leading-tight">
-          Last Updated: {new Date(protocol.lastUpdatedAt).toLocaleString()}
-        </div>
     </div>
   );
 });
 
-export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
+export async function getServerSideProps(): Promise<GetServerSidePropsResult<Props>> {
   const { protocol } = getStore();
   await protocol.loadProtocolData();
   return {

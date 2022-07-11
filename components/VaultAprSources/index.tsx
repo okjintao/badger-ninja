@@ -34,7 +34,7 @@ function VaultAprSources({ vault }: Props): JSX.Element {
   }
 
   return (
-    <div className="bg-calm p-3 md:mr-2 rounded-lg">
+    <div className="bg-card p-3 md:mr-2 rounded-lg">
       <div className="text-xs text-gray-400">Vault Historic Performance</div>
       <div className="text-sm font-semibold flex justify-between mt-1">
         <span>Emission Source</span> 

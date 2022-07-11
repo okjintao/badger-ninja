@@ -8,6 +8,7 @@ import {
 import { GetStaticPropsResult } from 'next';
 import VaultHarvestItem from '../../components/VaultHarvestItem';
 import { VaultHarvestSummary } from '../../interfaces/vault-harvest-summary.interface';
+import getStore from '../../store';
 
 interface Props {
   alertVaults: VaultHarvestSummary[];
@@ -44,11 +45,8 @@ function VaultMonitor({
   );
 }
 
-export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
-  const api = new BadgerAPI({
-    network: 1,
-    baseURL: 'https://staging-api.badger.com/v2',
-  });
+export async function getServerSideProps(): Promise<GetStaticPropsResult<Props>> {
+  const store = getStore();
 
   const alertVaults: VaultHarvestSummary[] = [];
   const borderlineVaults: VaultHarvestSummary[] = [];
@@ -56,7 +54,7 @@ export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
 
   for (const network of Object.values(Network)) {
     try {
-      const networkVaults = await api.loadVaults(Currency.USD, network);
+      const networkVaults = await store.sdk.api.loadVaults(Currency.USD, network);
       const networkName = network
         .split('-')
         .map((i) => i.charAt(0).toUpperCase() + i.slice(1))
