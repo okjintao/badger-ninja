@@ -19,7 +19,7 @@ function VaultHarvestItem({ harvestInformation }: Props): JSX.Element {
   return (
     <div className="my-1 w-full xl:w-2/3">
       <Link href={href} passHref>
-        <div className="flex bg-calm rounded-lg p-1 lg:p-3 cursor-pointer mx-2">
+        <div className="flex bg-card rounded-lg p-1 lg:p-3 cursor-pointer mx-2">
           <div className="flex flex-col items-center justify-center w-16 md:w-24 m-2">
             <div
               className={`w-2 h-2 rounded-full ${

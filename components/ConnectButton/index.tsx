@@ -7,8 +7,19 @@ import { StoreContext } from '../../store/StoreContext';
 import { shortenAddress } from '../../utils';
 
 const ConnectButton = observer((): JSX.Element => {
+  const store = useContext(StoreContext);
   const { connect, disconnect } = useWallet();
-  const { active, account } = useWeb3React();
+  const { active, account, library } = useWeb3React();
+
+  useEffect(() => {
+    async function updateSdk() {
+      if (library && account) {
+        console.log({ library, account });
+        await store.user.updateProvider(library);
+      }
+    }
+    updateSdk();
+  }, [library, account]);
 
   useEffect(() => {
     if (!account) {
@@ -26,7 +37,7 @@ const ConnectButton = observer((): JSX.Element => {
 
   return (
     <div
-      className="w-18 md:w-28 flex justify-center border p-2 text-sm rounded-md bg-deepsea shadow-lg cursor-pointer border-mint text-white"
+      className="w-18 md:w-28 flex justify-center border p-2 text-sm rounded-md shadow-lg cursor-pointer border-badger text-badger"
       onClick={handleClick}
     >
       {!active && <div className="text-md leading-tight">Connect</div>}

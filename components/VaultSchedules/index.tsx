@@ -29,7 +29,7 @@ function VaultSchedules({ vault, schedules }: Props): JSX.Element {
   }
 
   return (
-    <div className="flex flex-col justify-between bg-calm p-3 md:ml-2 rounded-lg mt-4 md:mt-0">
+    <div className="flex flex-col justify-between bg-card p-3 md:ml-2 rounded-lg mt-4 md:mt-0">
       <div>
         <div className="text-xs text-gray-400">Vault Emission Schedules</div>
         <div className="text-sm grid grid-cols-4 font-semibold mt-1">

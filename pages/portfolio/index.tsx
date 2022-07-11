@@ -17,7 +17,7 @@ function Tokens({ networks }: Props): JSX.Element {
   );
 }
 
-export async function getStaticProps(): Promise<GetStaticPropsResult<Props>> {
+export async function getServerSideProps(): Promise<GetStaticPropsResult<Props>> {
   const { protocol } = getStore();
   await protocol.loadProtocolData();
   return {

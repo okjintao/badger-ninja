@@ -10,7 +10,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@badger-dao/sdk": "1.5.1",
+    "@badger-dao/sdk": "1.15.15",
     "@builder.io/partytown": "^0.5.2",
     "@types/node": "17.0.23",
     "@types/react": "17.0.43",

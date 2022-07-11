@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Network,
   VaultDTO,
   VaultSnapshot,
   VaultVersion,
@@ -81,8 +80,8 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
   });
 
   return (
-    <div className="bg-calm mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
-      <div className="text-sm text-gray-400 mb-4">Vault History</div>
+    <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
+      <div className="text-xs text-gray-400 mb-4">Vault History</div>
       <ResponsiveContainer height={350}>
         <ComposedChart data={chartData}>
           <Legend formatter={legendFormatter} />

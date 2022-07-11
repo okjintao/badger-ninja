@@ -66,7 +66,7 @@ function BadgerNinja({ Component, pageProps }: AppProps): JSX.Element {
       </Head>
       <Web3ReactProvider getLibrary={getLibrary}>
         <StoreProvider value={store}>
-          <div className="flex flex-col bg-deepsea min-h-screen">
+          <div className="flex flex-col bg-cave min-h-screen">
             <NavBar />
             <Component {...pageProps} />
             <ToastContainer

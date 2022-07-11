@@ -4,7 +4,7 @@ import NavLink from './NavLink';
 
 function NavBar(): JSX.Element {
   return (
-    <div className="flex w-full bg-calm shadow-lg border-b border-foam h-24 justify-center">
+    <div className="flex w-full bg-slate shadow-xl h-24 justify-center">
       <div className="flex flex-col mx-4 md:mx-0 w-full md:w-5/6 mt-3">
         <div className="flex w-full justify-between items-center">
           <div
