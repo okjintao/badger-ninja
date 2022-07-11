@@ -32,14 +32,20 @@ export class ProtocolStore {
     if (Date.now() - this.store.updatedAt < ONE_MIN_MS) {
       return;
     }
-    const { sdk } = this.store;
-    for (const network of Object.values(Network)) {
+    const { sdk: { api } } = this.store;
+    await Promise.all(Object.values(Network).map(async (network) => {
       if (network === Network.Local || network == Network.Optimism) {
-        continue;
+        return;
       }
 
       try {
-        const networkVaults = await sdk.api.loadVaults(Currency.USD, network);
+        const [networkVaults, tokens, prices] = await Promise.all([
+          api.loadVaults(Currency.USD, network),
+          api.loadTokens(),
+          api.loadPrices(
+            Currency.USD,
+            network,),
+        ]);
         this.networks[network].vaults = networkVaults.filter(
           (v) => v.state !== VaultState.Discontinued,
         );
@@ -47,13 +53,10 @@ export class ProtocolStore {
           (total, v) => (total += v.value),
           0,
         );
-        this.networks[network].tokens = await sdk.api.loadTokens();
-        this.networks[network].prices = await sdk.api.loadPrices(
-          Currency.USD,
-          network,
-        );
+        this.networks[network].tokens = tokens;
+        this.networks[network].prices = prices;
       } catch {} // some network are not supported
-    }
+    }));
     this.initialized = true;
   }
 }
