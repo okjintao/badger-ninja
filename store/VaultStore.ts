@@ -76,7 +76,10 @@ export class VaultStore {
       })
     ])
 
-    schedules.forEach((s) => (s.token = tokens[s.token].name));
+    // some error handling here...
+    if (Array.isArray(schedules)) {
+      schedules.forEach((s) => (s.token = tokens[s.token].name));
+    }
 
     const vaultTransfers = transfers.map((t) => {
       const transferType =

@@ -24,9 +24,9 @@ export class RootStore {
   }
 
   async updateData() {
-    await Promise.all([
-      this.protocol.loadProtocolData(),
-    ]);
+    await this.protocol.loadProtocolData();
+    const { networks } = this.protocol;
+    await Promise.all(Object.values(networks).flatMap((n) => n.vaults.map((v) => this.vaults.loadVaultData(n.network, v.vaultToken))));
     this.updatedAt = Date.now();
   }
 }
