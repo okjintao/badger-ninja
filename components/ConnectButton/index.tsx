@@ -1,6 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect } from 'react';
+
 import { ConnectorType } from '../../config/enums/connector-type.enum';
 import useWallet from '../../hooks/useWallet';
 import { StoreContext } from '../../store/StoreContext';
@@ -43,8 +44,12 @@ const ConnectButton = observer((): JSX.Element => {
       {!active && <div className="text-md leading-tight">Connect</div>}
       {account && (
         <>
-          <div className="hidden md:flex text-md leading-tight">{shortenAddress(account)}</div>
-          <div className="md:hidden flex text-md leading-tight">{shortenAddress(account, 3)}</div>
+          <div className="hidden md:flex text-md leading-tight">
+            {shortenAddress(account)}
+          </div>
+          <div className="md:hidden flex text-md leading-tight">
+            {shortenAddress(account, 3)}
+          </div>
         </>
       )}
     </div>

@@ -1,11 +1,12 @@
 import {
   BadgerAPI,
-  Network,
   Currency,
+  Network,
   VaultState,
   VaultVersion,
 } from '@badger-dao/sdk';
 import { GetStaticPropsResult } from 'next';
+
 import VaultHarvestItem from '../../components/VaultHarvestItem';
 import { VaultHarvestSummary } from '../../interfaces/vault-harvest-summary.interface';
 import getStore from '../../store';
@@ -45,7 +46,9 @@ function VaultMonitor({
   );
 }
 
-export async function getServerSideProps(): Promise<GetStaticPropsResult<Props>> {
+export async function getServerSideProps(): Promise<
+  GetStaticPropsResult<Props>
+> {
   const store = getStore();
 
   const alertVaults: VaultHarvestSummary[] = [];
@@ -57,7 +60,10 @@ export async function getServerSideProps(): Promise<GetStaticPropsResult<Props>>
       continue;
     }
     try {
-      const networkVaults = await store.sdk.api.loadVaults(Currency.USD, network);
+      const networkVaults = await store.sdk.api.loadVaults(
+        Currency.USD,
+        network,
+      );
       const networkName = network
         .split('-')
         .map((i) => i.charAt(0).toUpperCase() + i.slice(1))

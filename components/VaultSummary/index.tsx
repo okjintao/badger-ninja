@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
 import { formatBalance, Network, VaultDTO } from '@badger-dao/sdk';
-import VaultStatistic from '../VaultStatistic';
-import { getChainExplorer, shortenAddress } from '../../utils';
-import { StoreContext } from '../../store/StoreContext';
 import { observer } from 'mobx-react-lite';
+import React, { useContext, useEffect, useState } from 'react';
+
+import { StoreContext } from '../../store/StoreContext';
+import { getChainExplorer, shortenAddress } from '../../utils';
+import VaultStatistic from '../VaultStatistic';
 
 interface Props {
   network: Network;
@@ -52,7 +53,10 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
   useEffect(() => {
     async function fetchBalances() {
       if (store.sdk.address) {
-        const tokenInfo = await store.sdk.tokens.loadBalances([vaultToken, underlyingToken]);
+        const tokenInfo = await store.sdk.tokens.loadBalances([
+          vaultToken,
+          underlyingToken,
+        ]);
         setVaultBalance(formatBalance(tokenInfo[vaultToken], 18));
         setUnderlyingBalance(formatBalance(tokenInfo[underlyingToken], 18));
       }
@@ -74,18 +78,26 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
             {version} - {stateDisplay}
           </div>
         </div>
-        {(vaultBalance || underlyingBalance) && 
+        {(vaultBalance || underlyingBalance) && (
           <div className="flex flex-col lg:flex-row justify-center lg:justify-end lg:items-center lg:col-span-2">
             <div className="text-xs grid grid-cols-2 mt-2 md:mt-0">
               <div className="flex flex-col">
                 <div className="text-gray-300">Wallet</div>
-                <div className="text-white text-sm">{underlyingBalance} {asset}</div>
-                <div>{formatter.format(underlyingBalance * underlyingTokenPrice)}</div>
+                <div className="text-white text-sm">
+                  {underlyingBalance} {asset}
+                </div>
+                <div>
+                  {formatter.format(underlyingBalance * underlyingTokenPrice)}
+                </div>
               </div>
               <div className="flex flex-col">
                 <div className="text-gray-300">Vault</div>
-                <div className="text-white text-sm">{vaultBalance} {asset}</div>
-                <div>{formatter.format(vaultBalance * underlyingTokenPrice)}</div>
+                <div className="text-white text-sm">
+                  {vaultBalance} {asset}
+                </div>
+                <div>
+                  {formatter.format(vaultBalance * underlyingTokenPrice)}
+                </div>
               </div>
             </div>
             <div className="flex space-x-3 mt-2 lg:mt-0 md:justify-start lg:justify-end lg:ml-5 flex-shrink-0">
@@ -97,7 +109,7 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
               </div>
             </div>
           </div>
-        }
+        )}
       </div>
       <div className="mt-4 mb-2 grid grid-cols-2 lg:grid-cols-4">
         <VaultStatistic title="Protocol" value={protocol} />

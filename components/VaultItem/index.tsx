@@ -41,10 +41,12 @@ function VaultItem({ vault }: Props): JSX.Element {
   }`;
   return (
     <div className="bg-deep p-4 shadow-md border-slate border-t hover:bg-slate cursor-pointer grid grid-cols-3 lg:grid-cols-4">
-      <span>{name} - {protocol}</span>
+      <span>
+        {name} - {protocol}
+      </span>
       <span>${value.toLocaleString()}</span>
       <span>{yieldDisplay}</span>
-      <div className='hidden lg:block'>
+      <div className="hidden lg:block">
         {lastHarvest > 0
           ? new Date(lastHarvest * 1000).toLocaleString()
           : 'Unkown'}
