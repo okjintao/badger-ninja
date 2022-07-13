@@ -1,4 +1,4 @@
-import { ChartGranularity, formatBalance, Network } from "@badger-dao/sdk";
+import { ChartGranularity, formatBalance, keyBy, Network } from "@badger-dao/sdk";
 import { Transfer_OrderBy, OrderDirection, SettHarvest_OrderBy, BadgerTreeDistribution_OrderBy } from "@badger-dao/sdk/lib/graphql/generated/badger";
 import { BigNumber, ethers } from "ethers";
 import { makeAutoObservable } from "mobx";
@@ -51,8 +51,8 @@ export class VaultStore {
         start: start.toISOString(),
         end: end.toISOString(),
         granularity: ChartGranularity.DAY,
-      }),
-      api.loadSchedule(address, true),
+      }, network),
+      api.loadSchedule(address, true, network),
       graph.loadTransfers({
         where: {
           sett: address.toLowerCase(),
@@ -98,6 +98,10 @@ export class VaultStore {
       };
     });
 
+    const timestamps = Array.from(new Set(settHarvests.map((s) => s.timestamp)));
+    const snapshots = await api.loadVaultSnapshots(vault.vaultToken, timestamps, network);
+    const snapshotsByTimestamp = Object.fromEntries(snapshots.map((s) => [s.timestamp, s]));
+
     const harvests: VaultHarvestInfo[] = [];
 
     for (let i = 0; i < settHarvests.length - 1; i++) {
@@ -116,16 +120,16 @@ export class VaultStore {
       }
       const amount = formatBalance(tokenAmount, underlyingDecimals);
       const value = amount * prices[vault.underlyingToken] ?? 0;
-      const vaultSnapshot = await graph.loadSett({
-        id: address.toLowerCase(),
-        block: { number: Number(start.blockNumber) },
-      });
+
+
+      const vaultSnapshot = snapshotsByTimestamp[start.timestamp];
       let balanceAmount = 0;
-      if (!isDigg && vaultSnapshot.sett?.strategy?.balance) {
-        balanceAmount = vaultSnapshot.sett?.strategy?.balance;
+      if (!isDigg && vaultSnapshot.strategyBalance) {
+        balanceAmount = vaultSnapshot.strategyBalance;
       } else {
-        balanceAmount = vaultSnapshot.sett?.balance;
+        balanceAmount = vaultSnapshot.balance;
       }
+
       const balanceValue =
         formatBalance(balanceAmount, underlyingDecimals) *
         prices[vault.underlyingToken];

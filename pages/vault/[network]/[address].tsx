@@ -65,11 +65,6 @@ export const defaultProps: VaultProps = {
 const PAGE_SIZE = 10;
 
 const VaultInformation = observer((): JSX.Element => {
-  const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  });
-
   const router = useRouter();
   const { network: requestedNetwork, address } = router.query;
   const [vaultInfo, setVaultInfo] = useState(defaultProps);
