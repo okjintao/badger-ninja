@@ -1,9 +1,7 @@
+import { VaultDTO, VaultSnapshot, VaultVersion } from '@badger-dao/sdk';
+import { format } from 'd3-format';
+import { timeFormat } from 'd3-time-format';
 import React from 'react';
-import {
-  VaultDTO,
-  VaultSnapshot,
-  VaultVersion,
-} from '@badger-dao/sdk';
 import {
   Area,
   ComposedChart,
@@ -14,8 +12,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { timeFormat } from 'd3-time-format';
-import { format } from 'd3-format';
 
 interface Props {
   chartData: VaultSnapshot[];

@@ -1,14 +1,16 @@
-import { AppProps } from 'next/app';
-import React, { useEffect } from 'react';
-import NavBar from '../components/NavBar';
-import { getLibrary } from '../config/web3/library.config';
-import { Web3ReactProvider } from '@web3-react/core';
-import getStore from '../store';
-import { StoreProvider } from '../store/StoreContext';
-import { ToastContainer } from 'react-toastify';
-import Head from 'next/head';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
+
+import { Web3ReactProvider } from '@web3-react/core';
+import { AppProps } from 'next/app';
+import Head from 'next/head';
+import React, { useEffect } from 'react';
+import { ToastContainer } from 'react-toastify';
+
+import NavBar from '../components/NavBar';
+import { getLibrary } from '../config/web3/library.config';
+import getStore from '../store';
+import { StoreProvider } from '../store/StoreContext';
 
 function BadgerNinja({ Component, pageProps }: AppProps): JSX.Element {
   const store = getStore();

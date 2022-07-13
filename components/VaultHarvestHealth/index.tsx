@@ -1,5 +1,6 @@
 import { VaultDTO } from '@badger-dao/sdk';
 import React from 'react';
+
 import VaultStatistic from '../VaultStatistic';
 
 interface Props {
@@ -18,7 +19,7 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
   } = yieldProjection;
   const realizedHarvestPercent = (harvestValue / yieldValue) * 100;
   return (
-      <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
+    <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
       <div className="text-sm text-gray-400">Vault Harvest Health</div>
       <div
         className={`text-xl ${
@@ -35,12 +36,12 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
       </div>
       <div className="text-xs mt-2">What is Harvest Health?</div>
       <div className="text-xs mt-1 text-gray-400">
-        Harvest health is a measure of a strategy performance. Pending yield
-        is the current yield being realized by the vault from the protocol
-        being farmed. Pending harvest is the current simulated yield being
-        realized by the vault when harvested. This measure most accurately
-        reflects the current yield the vault is experiencing with respect to
-        market conditions and other externalities.
+        Harvest health is a measure of a strategy performance. Pending yield is
+        the current yield being realized by the vault from the protocol being
+        farmed. Pending harvest is the current simulated yield being realized by
+        the vault when harvested. This measure most accurately reflects the
+        current yield the vault is experiencing with respect to market
+        conditions and other externalities.
       </div>
       <div className="grid grid-cols-2 mt-3">
         <div className="flex flex-col">

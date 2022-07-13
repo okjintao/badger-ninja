@@ -10,37 +10,38 @@ import BadgerSDK, {
   VaultVersion,
 } from '@badger-dao/sdk';
 import {
+  BadgerTreeDistribution_OrderBy,
+  OrderDirection,
+  SettHarvest_OrderBy,
+  Transfer_OrderBy,
+} from '@badger-dao/sdk/lib/graphql/generated/badger';
+import { BigNumber } from '@badger-dao/sdk/node_modules/ethers';
+import { ethers } from 'ethers';
+import { observer } from 'mobx-react-lite';
+import {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
   GetStaticPathsResult,
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
-import VaultStatistic from '../../../components/VaultStatistic';
-import {
-  BadgerTreeDistribution_OrderBy,
-  OrderDirection,
-  SettHarvest_OrderBy,
-  Transfer_OrderBy,
-} from '@badger-dao/sdk/lib/graphql/generated/badger';
-import { VaultTransfer } from '../../../interfaces/vault-transfer.interface';
-import { getChainExplorer, shortenAddress } from '../../../utils';
+import { useRouter } from 'next/router';
 import React, { useContext, useEffect, useState } from 'react';
-import { VaultHarvestInfo } from '../../../interfaces/vault-harvest-info.interface';
-import { RewardType } from '../../../enums/reward-type.enum';
-import { ethers } from 'ethers';
-import getStore from '../../../store';
-import VaultSummary from '../../../components/VaultSummary';
-import VaultChart from '../../../components/VaultChart';
-import { BigNumber } from '@badger-dao/sdk/node_modules/ethers';
+
 import VaultAprSources from '../../../components/VaultAprSources';
-import VaultSchedules from '../../../components/VaultSchedules';
+import VaultChart from '../../../components/VaultChart';
 import VaultHarvestHealth from '../../../components/VaultHarvestHealth';
 import VaultHarvestHistory from '../../../components/VaultHarvestHistory';
-import { StoreContext } from '../../../store/StoreContext';
-import { observer } from 'mobx-react-lite';
-import { useRouter } from 'next/router';
+import VaultSchedules from '../../../components/VaultSchedules';
+import VaultStatistic from '../../../components/VaultStatistic';
+import VaultSummary from '../../../components/VaultSummary';
 import VaultTransactionHistory from '../../../components/VaultTransactionHistory';
+import { RewardType } from '../../../enums/reward-type.enum';
+import { VaultHarvestInfo } from '../../../interfaces/vault-harvest-info.interface';
+import { VaultTransfer } from '../../../interfaces/vault-transfer.interface';
+import getStore from '../../../store';
+import { StoreContext } from '../../../store/StoreContext';
+import { getChainExplorer, shortenAddress } from '../../../utils';
 
 export interface VaultProps {
   vault?: VaultDTO;
@@ -59,7 +60,7 @@ export const defaultProps: VaultProps = {
   network: Network.Ethereum,
   prices: {},
   harvests: [],
-}
+};
 
 const PAGE_SIZE = 10;
 
@@ -70,10 +71,10 @@ const VaultInformation = observer((): JSX.Element => {
   });
 
   const router = useRouter();
-  const { network: requestedNetwork, address } = router.query; 
+  const { network: requestedNetwork, address } = router.query;
   const [vaultInfo, setVaultInfo] = useState(defaultProps);
 
-  let network: Network; 
+  let network: Network;
   try {
     network = getNetworkConfig(requestedNetwork as string).network;
   } catch {
@@ -93,7 +94,7 @@ const VaultInformation = observer((): JSX.Element => {
   }, [network, address, protocol.initialized]);
 
   if (!vaultInfo.vault) {
-    return <></>
+    return <></>;
   }
 
   const { vault, transfers, chartData, schedules, harvests } = vaultInfo;
@@ -109,7 +110,11 @@ const VaultInformation = observer((): JSX.Element => {
         <VaultSchedules vault={vault} schedules={schedules} />
       </div>
       <VaultHarvestHistory network={network} harvests={harvests} />
-      <VaultTransactionHistory vault={vault} network={network} transfers={transfers} />
+      <VaultTransactionHistory
+        vault={vault}
+        network={network}
+        transfers={transfers}
+      />
     </div>
   );
 });

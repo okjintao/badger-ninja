@@ -1,10 +1,10 @@
 import { GetStaticPropsResult } from 'next';
 import { useContext } from 'react';
+
 import { NetworkSummary } from '../../interfaces/network-summary.interface';
 import getStore from '../../store';
 import { StoreContext } from '../../store/StoreContext';
 import { getChainExplorer } from '../../utils';
-
 
 function Tokens(): JSX.Element {
   const formatter = new Intl.NumberFormat('en-US', {
@@ -12,7 +12,9 @@ function Tokens(): JSX.Element {
     currency: 'USD',
   });
   const { protocol } = useContext(StoreContext);
-  const networks: NetworkSummary[] = protocol.initialized ? Object.values(protocol.networks) : [];
+  const networks: NetworkSummary[] = protocol.initialized
+    ? Object.values(protocol.networks)
+    : [];
   return (
     <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto">
       <div className="my-2 w-full">

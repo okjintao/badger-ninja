@@ -1,4 +1,5 @@
 import { GetStaticPropsResult } from 'next';
+
 import { NetworkSummary } from '../../interfaces/network-summary.interface';
 import getStore from '../../store';
 import { getChainExplorer } from '../../utils';
@@ -17,7 +18,9 @@ function Tokens({ networks }: Props): JSX.Element {
   );
 }
 
-export async function getServerSideProps(): Promise<GetStaticPropsResult<Props>> {
+export async function getServerSideProps(): Promise<
+  GetStaticPropsResult<Props>
+> {
   const { protocol } = getStore();
   await protocol.loadProtocolData();
   return {
