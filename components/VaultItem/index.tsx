@@ -40,17 +40,11 @@ function VaultItem({ vault }: Props): JSX.Element {
     hasYieldRange ? ` - ${maxYield.toFixed(2)}%` : ''
   }`;
   return (
-    <div className="flex flex-col bg-card rounded-lg m-2 p-4 shadow-md hover:bg-foam cursor-pointer">
-      <div className="flex justify-between items-end">
-        <div className="text-lg">{name}</div>
-        <div className="text-sm">{protocol}</div>
-      </div>
-      <div className="flex justify-between">
-        <div className="text-sm">${value.toLocaleString()}</div>
-        <div className="text-sm">{yieldDisplay}</div>
-      </div>
-      <div className="text-xs text-gray-400">
-        Harvested:{' '}
+    <div className="bg-deep p-4 shadow-md border-slate border-t hover:bg-slate cursor-pointer grid grid-cols-3 lg:grid-cols-4">
+      <span>{name} - {protocol}</span>
+      <span>${value.toLocaleString()}</span>
+      <span>{yieldDisplay}</span>
+      <div className='hidden lg:block'>
         {lastHarvest > 0
           ? new Date(lastHarvest * 1000).toLocaleString()
           : 'Unkown'}

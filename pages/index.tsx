@@ -57,9 +57,18 @@ const Landing = observer((): JSX.Element => {
       {networksByTVL
         .filter((n) => n.tvl > 0 && n.vaults.length > 0)
         .map((n) => (
-          <div className="grid w-full" key={n.network}>
-            <div className="text-lg ml-2">{n.name}</div>
-            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4">
+          <div className="grid w-full mb-6" key={n.network}>
+            <div className='flex items-center mb-2'>
+              <div className="text-xl mr-6">{n.name}</div>
+              <div className='text-sm font-semibold text-sea'>Registry</div>
+            </div>
+            <div className='bg-slate grid grid-cols-3 lg:grid-cols-4 p-4 shadow-lg rounded-t-lg uppercase text-sm text-shallow'>
+              <span>Vault</span>
+              <span>TVL</span>
+              <span className='hidden lg:block'>APR</span>
+              <span>Harvest Time</span>
+            </div>
+            <div className="flex flex-col">
               {n.vaults
                 .slice()
                 .sort((a, b) => b.value - a.value)
