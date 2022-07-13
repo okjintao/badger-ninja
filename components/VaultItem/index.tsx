@@ -49,7 +49,7 @@ function VaultItem({ vault }: Props): JSX.Element {
       <div className="hidden lg:block">
         {lastHarvest > 0
           ? new Date(lastHarvest * 1000).toLocaleString()
-          : 'Unkown'}
+          : 'Unknown'}
       </div>
     </div>
   );
