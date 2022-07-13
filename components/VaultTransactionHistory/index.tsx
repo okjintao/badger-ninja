@@ -50,7 +50,7 @@ const VaultTransactionHistory = observer(
                       {t.amount.toLocaleString()} (
                       {formatter.format(prices[vault.vaultToken] * t.amount)})
                     </div>
-                    <div className="text-mint">
+                    <div className="text-sea">
                       <a
                         className="flex"
                         href={`${getChainExplorer(network)}/tx/${t.hash}`}
@@ -60,7 +60,7 @@ const VaultTransactionHistory = observer(
                         {shortenAddress(t.hash, 8)}
                         <svg
                           className="ml-2 mt-1"
-                          fill="#3bba9c"
+                          fill="#91CDFF"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
                           width="15px"
@@ -83,7 +83,7 @@ const VaultTransactionHistory = observer(
               }}
               xmlns="http://www.w3.org/2000/svg"
               className={`h-5 w-5 ${
-                page > 0 ? 'hover:text-mint cursor-pointer' : 'opacity-50'
+                page > 0 ? 'hover:text-sea cursor-pointer' : 'opacity-50'
               }`}
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -105,9 +105,7 @@ const VaultTransactionHistory = observer(
               }}
               xmlns="http://www.w3.org/2000/svg"
               className={`h-5 w-5 ${
-                page < maxPages
-                  ? 'hover:text-mint cursor-pointer'
-                  : 'opacity-50'
+                page < maxPages ? 'hover:text-sea cursor-pointer' : 'opacity-50'
               }`}
               viewBox="0 0 20 20"
               fill="currentColor"

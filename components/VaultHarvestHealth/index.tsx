@@ -17,7 +17,8 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
     yieldApr,
     harvestApr,
   } = yieldProjection;
-  const realizedHarvestPercent = (harvestValue / yieldValue) * 100;
+  const realizedHarvestPercent =
+    yieldValue === 0 ? 100 : (harvestValue / yieldValue) * 100;
   return (
     <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
       <div className="text-sm text-gray-400">Vault Harvest Health</div>

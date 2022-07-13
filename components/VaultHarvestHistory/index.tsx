@@ -46,7 +46,7 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
                   {h.amount.toFixed(3)} {h.token}
                 </div>
                 <div>{isNaN(h.apr) || !h.apr ? 0 : h.apr.toFixed(2)}%</div>
-                <div className="text-mint">
+                <div className="text-sea">
                   <a
                     className="flex"
                     href={`${getChainExplorer(network)}/tx/${h.hash}`}
@@ -56,7 +56,7 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
                     {shortenAddress(h.hash, 8)}
                     <svg
                       className="ml-2 mt-1"
-                      fill="#3bba9c"
+                      fill="#91CDFF"
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       width="15px"
@@ -78,7 +78,7 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
             }}
             xmlns="http://www.w3.org/2000/svg"
             className={`h-5 w-5 ${
-              harvestPage > 0 ? 'hover:text-mint cursor-pointer' : 'opacity-50'
+              harvestPage > 0 ? 'hover:text-sea cursor-pointer' : 'opacity-50'
             }`}
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -101,7 +101,7 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
             xmlns="http://www.w3.org/2000/svg"
             className={`h-5 w-5 ${
               harvestPage < maxHarvestPages
-                ? 'hover:text-mint cursor-pointer'
+                ? 'hover:text-sea cursor-pointer'
                 : 'opacity-50'
             }`}
             viewBox="0 0 20 20"

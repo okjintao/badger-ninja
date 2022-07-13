@@ -41,7 +41,7 @@ const ConnectButton = observer((): JSX.Element => {
       className="w-18 md:w-28 flex justify-center border p-2 text-sm rounded-md shadow-lg cursor-pointer border-badger text-badger"
       onClick={handleClick}
     >
-      {!active && <div className="text-md leading-tight">Connect</div>}
+      {!active && <div className="text-md leading-tight">CONNECT</div>}
       {account && (
         <>
           <div className="hidden md:flex text-md leading-tight">

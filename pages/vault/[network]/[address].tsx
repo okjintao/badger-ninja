@@ -88,25 +88,36 @@ const VaultInformation = observer((): JSX.Element => {
     loadVaultInformation();
   }, [network, address, protocol.initialized]);
 
-  if (!vaultInfo.vault) {
+  if (!protocol.initialized) {
     return <></>;
   }
 
-  const { vault, transfers, chartData, schedules, harvests } = vaultInfo;
-  const { version } = vault;
+  const searchAddress = ethers.utils.getAddress(address as string);
+  const requestedVault = protocol.networks[network].vaults.find(
+    (v) => v.vaultToken === searchAddress,
+  );
+
+  if (!requestedVault) {
+    return <></>;
+  }
+
+  const { version } = requestedVault;
+  const { transfers, chartData, schedules, harvests } = vaultInfo;
 
   return (
     <div className="flex flex-grow flex-col w-full md:11/12 lg:w-5/6 xl:w-3/4 text-gray-300 pb-10 mx-auto">
-      <VaultSummary network={network} vault={vault} />
-      <VaultChart chartData={chartData} vault={vault} />
-      {version === VaultVersion.v1_5 && <VaultHarvestHealth vault={vault} />}
+      <VaultSummary network={network} vault={requestedVault} />
+      <VaultChart chartData={chartData} vault={requestedVault} />
+      {version === VaultVersion.v1_5 && (
+        <VaultHarvestHealth vault={requestedVault} />
+      )}
       <div className="mt-4 mx-2 lg:mx-0 grid grid-cols-1 md:grid-cols-2">
-        <VaultAprSources vault={vault} />
-        <VaultSchedules vault={vault} schedules={schedules} />
+        <VaultAprSources vault={requestedVault} />
+        <VaultSchedules vault={requestedVault} schedules={schedules} />
       </div>
       <VaultHarvestHistory network={network} harvests={harvests} />
       <VaultTransactionHistory
-        vault={vault}
+        vault={requestedVault}
         network={network}
         transfers={transfers}
       />
