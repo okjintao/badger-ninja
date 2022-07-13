@@ -12,8 +12,8 @@ function NavLink({ href, text }: Props): JSX.Element {
   const isActive = router.asPath === href;
   return (
     <div
-      className={`flex items-center justify-center border-b-2 mt-1 px-2${
-        isActive ? ' border-sea font-semibold' : ' border-slate'
+      className={`flex items-center justify-center mt-1 px-2${
+        isActive ? ' border-sea font-semibold border-b-2' : ' mb-0.5'
       }`}
     >
       <Link href={href} passHref>
