@@ -47,6 +47,17 @@ function tooltipFormatter(value: number, name: string): [string, string] {
 }
 
 function VaultChart({ chartData, vault }: Props): JSX.Element {
+  if (chartData.length === 0) {
+    return (
+      <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
+        <div className="text-xs text-gray-400 mb-4">Vault History</div>
+        <ResponsiveContainer height={350}>
+          <div className="flex flex-grow w-full h-full animate-pulse bg-slate" />
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
   const { version } = vault;
 
   let minYield = Number.MAX_VALUE;
@@ -123,16 +134,16 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
           <Area
             type="monotone"
             dataKey="value"
-            fill="#707793"
-            stroke="#707793"
+            fill="rgba(29, 114, 255, 0.1)"
+            stroke="#1D72FF"
             yAxisId="value"
             strokeWidth={2}
           />
           <Line
             type="monotone"
             dataKey="apr"
-            fill="#292929"
-            stroke="#292929"
+            fill="#E2652B"
+            stroke="#E2652B"
             yAxisId="yieldApr"
             strokeWidth={1.5}
           />

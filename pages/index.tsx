@@ -75,7 +75,6 @@ const Landing = observer((): JSX.Element => {
         <div className="grid w-full mb-6">
           <div className="flex items-center mb-2">
             <div className="text-xl mr-6">Ethereum</div>
-            <div className="text-sm font-semibold text-sea">Registry</div>
           </div>
           <div className="bg-slate grid grid-cols-3 lg:grid-cols-4 p-4 shadow-lg rounded-t-lg uppercase text-sm text-shallow">
             <span>Vault</span>

@@ -1,12 +1,22 @@
-import { ChartGranularity, formatBalance, keyBy, Network } from "@badger-dao/sdk";
-import { Transfer_OrderBy, OrderDirection, SettHarvest_OrderBy, BadgerTreeDistribution_OrderBy } from "@badger-dao/sdk/lib/graphql/generated/badger";
-import { BigNumber, ethers } from "ethers";
-import { makeAutoObservable } from "mobx";
-import config from "next/config";
-import { RewardType } from "../enums/reward-type.enum";
-import { VaultHarvestInfo } from "../interfaces/vault-harvest-info.interface";
-import { VaultProps } from "../pages/vault/[network]/[address]";
-import { RootStore } from "./RootStore";
+import {
+  ChartGranularity,
+  formatBalance,
+  keyBy,
+  Network,
+} from '@badger-dao/sdk';
+import {
+  Transfer_OrderBy,
+  OrderDirection,
+  SettHarvest_OrderBy,
+  BadgerTreeDistribution_OrderBy,
+} from '@badger-dao/sdk/lib/graphql/generated/badger';
+import { BigNumber, ethers } from 'ethers';
+import { makeAutoObservable } from 'mobx';
+import config from 'next/config';
+import { RewardType } from '../enums/reward-type.enum';
+import { VaultHarvestInfo } from '../interfaces/vault-harvest-info.interface';
+import { VaultProps } from '../pages/vault/[network]/[address]';
+import { RootStore } from './RootStore';
 
 const BLACKLIST_HARVESTS = [
   '0xfd05D3C7fe2924020620A8bE4961bBaA747e6305',
@@ -38,20 +48,29 @@ export class VaultStore {
         network: Network.Ethereum,
         prices: {},
         harvests: [],
-      }
+      };
     }
 
     const end = new Date();
     const start = new Date();
     start.setDate(start.getDate() - 30);
 
-    const [chartData, schedules, { transfers }, { settHarvests }, { badgerTreeDistributions }] = await Promise.all([
-      api.loadCharts({
-        vault: address,
-        start: start.toISOString(),
-        end: end.toISOString(),
-        granularity: ChartGranularity.DAY,
-      }, network),
+    const [
+      chartData,
+      schedules,
+      { transfers },
+      { settHarvests },
+      { badgerTreeDistributions },
+    ] = await Promise.all([
+      api.loadCharts(
+        {
+          vault: address,
+          start: start.toISOString(),
+          end: end.toISOString(),
+          granularity: ChartGranularity.DAY,
+        },
+        network,
+      ),
       api.loadSchedule(address, true, network),
       graph.loadTransfers({
         where: {
@@ -73,8 +92,8 @@ export class VaultStore {
         },
         orderBy: BadgerTreeDistribution_OrderBy.Timestamp,
         orderDirection: OrderDirection.Desc,
-      })
-    ])
+      }),
+    ]);
 
     // some error handling here...
     if (Array.isArray(schedules)) {
@@ -98,9 +117,17 @@ export class VaultStore {
       };
     });
 
-    const timestamps = Array.from(new Set(settHarvests.map((s) => s.timestamp)));
-    const snapshots = await api.loadVaultSnapshots(vault.vaultToken, timestamps, network);
-    const snapshotsByTimestamp = Object.fromEntries(snapshots.map((s) => [s.timestamp, s]));
+    const timestamps = Array.from(
+      new Set(settHarvests.map((s) => s.timestamp)),
+    );
+    const snapshots = await api.loadVaultSnapshots(
+      vault.vaultToken,
+      timestamps,
+      network,
+    );
+    const snapshotsByTimestamp = Object.fromEntries(
+      snapshots.map((s) => [s.timestamp, s]),
+    );
 
     const harvests: VaultHarvestInfo[] = [];
 
@@ -121,7 +148,6 @@ export class VaultStore {
       const amount = formatBalance(tokenAmount, underlyingDecimals);
       const value = amount * prices[vault.underlyingToken] ?? 0;
 
-
       const vaultSnapshot = snapshotsByTimestamp[start.timestamp];
       let balanceAmount = 0;
       if (!isDigg && vaultSnapshot.strategyBalance) {
@@ -130,9 +156,7 @@ export class VaultStore {
         balanceAmount = vaultSnapshot.balance;
       }
 
-      const balanceValue =
-        formatBalance(balanceAmount, underlyingDecimals) *
-        prices[vault.underlyingToken];
+      const balanceValue = balanceAmount * prices[vault.underlyingToken];
       const apr = (value / balanceValue) * (31536000 / duration) * 100;
       if (!BLACKLIST_HARVESTS.includes(address)) {
         harvests.push({
@@ -169,7 +193,8 @@ export class VaultStore {
           }
           const amount = formatBalance(tokenAmount, emissionToken.decimals);
           const value =
-            amount * prices[ethers.utils.getAddress(emissionToken.address)] ?? 0;
+            amount * prices[ethers.utils.getAddress(emissionToken.address)] ??
+            0;
           const apr = (value / balanceValue) * (31536000 / duration) * 100;
           harvests.push({
             rewardType: RewardType.TreeDistribution,
