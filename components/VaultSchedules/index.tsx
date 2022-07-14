@@ -32,7 +32,7 @@ function VaultSchedules({ vault, schedules }: Props): JSX.Element {
   }
 
   return (
-    <div className='h-full'>
+    <div className="h-full">
       <div className="md:ml-2 text-sm">Vault Emission Schedules</div>
       <div className="flex flex-col bg-card p-3 md:ml-2 rounded-lg mt-4">
         <div>
@@ -46,10 +46,10 @@ function VaultSchedules({ vault, schedules }: Props): JSX.Element {
         <div>
           <div className="text-xs mt-2">What are Emission Schedules?</div>
           <div className="text-xs mt-1 mb-1 text-gray-400">
-            Emission schedules are how Badger distributes rewards to depositors. A
-            set number of a specific token is distributed to the vault over any
-            given duration. These tokens are distributed either pro rata or in a
-            boosted manner dependent on the token emitted.
+            Emission schedules are how Badger distributes rewards to depositors.
+            A set number of a specific token is distributed to the vault over
+            any given duration. These tokens are distributed either pro rata or
+            in a boosted manner dependent on the token emitted.
           </div>
         </div>
       </div>
