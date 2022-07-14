@@ -1,5 +1,6 @@
 import {
   ChartGranularity,
+  ChartTimeFrame,
   formatBalance,
   keyBy,
   Network,
@@ -51,10 +52,6 @@ export class VaultStore {
       };
     }
 
-    const end = new Date();
-    const start = new Date();
-    start.setDate(start.getDate() - 30);
-
     const [
       chartData,
       schedules,
@@ -62,13 +59,9 @@ export class VaultStore {
       { settHarvests },
       { badgerTreeDistributions },
     ] = await Promise.all([
-      api.loadCharts(
-        {
-          vault: address,
-          start: start.toISOString(),
-          end: end.toISOString(),
-          granularity: ChartGranularity.DAY,
-        },
+      api.loadVaultChart(
+        address,
+        ChartTimeFrame.Month,
         network,
       ),
       api.loadSchedule(address, true, network),
