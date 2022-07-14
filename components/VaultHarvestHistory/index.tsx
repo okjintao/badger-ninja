@@ -20,16 +20,18 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
   const [harvestPage, setHarvestPage] = useState(0);
 
   return (
+    <div className='mt-10'>
+
+<div className="text-sm">Vault Harvest History</div>
     <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
-      <div className="text-xs text-gray-400">Vault Harvest History</div>
       <div className="mt-2">
         <div className="md:grid hidden md:grid-cols-6 p-1">
           <div>Date</div>
-          <div>Reward Type</div>
           <div>Value</div>
           <div>Amount</div>
+          <div>Token</div>
           <div>APR</div>
-          <div>Transaction</div>
+          <div>TX</div>
         </div>
         {harvests
           .slice(harvestPage * PAGE_SIZE, harvestPage + 1 * PAGE_SIZE + 1)
@@ -39,12 +41,15 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
                 key={`harvest-${h.token}-${i}`}
                 className="grid grid-cols-1 md:grid-cols-6 py-1"
               >
-                <div>{new Date(h.timestamp * 1000).toLocaleString()}</div>
-                <div>{h.rewardType}</div>
+                <div className='flex flex-col'>
+                  <span>{new Date(h.timestamp * 1000).toLocaleString()}</span>
+                  <div className='text-xs text-shallow'>{h.rewardType}</div>
+                </div>
                 <div>{formatter.format(h.value)}</div>
                 <div>
-                  {h.amount.toFixed(3)} {h.token}
+                  {h.amount.toFixed(3)}
                 </div>
+                <div>{h.token}</div>
                 <div>{isNaN(h.apr) || !h.apr ? 0 : h.apr.toFixed(2)}%</div>
                 <div className="text-sea">
                   <a
@@ -115,6 +120,7 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
           </svg>
         </div>
       </div>
+    </div>
     </div>
   );
 }

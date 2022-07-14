@@ -20,8 +20,10 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
   const realizedHarvestPercent =
     yieldValue === 0 ? 100 : (harvestValue / yieldValue) * 100;
   return (
-    <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 md:mx-0">
-      <div className="text-sm text-gray-400">Vault Harvest Health</div>
+    <div className='mt-10'>
+
+<div className="text-sm">Vault Harvest Health</div>
+<div className="bg-card p-3 md:p-4 mt-4 rounded-lg mx-2 md:mx-0">
       <div
         className={`text-xl ${
           realizedHarvestPercent > 100
@@ -86,6 +88,7 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

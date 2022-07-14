@@ -87,8 +87,10 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
   });
 
   return (
-    <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
-      <div className="text-xs text-gray-400 mb-4">Vault History</div>
+    <div className='mt-10'>
+
+<div className="text-sm mb-4">Vault History</div>
+    <div className="bg-card p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
       <ResponsiveContainer height={350}>
         <ComposedChart data={chartData}>
           <Legend formatter={legendFormatter} />
@@ -169,6 +171,7 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
           )}
         </ComposedChart>
       </ResponsiveContainer>
+    </div>
     </div>
   );
 }

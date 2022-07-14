@@ -29,8 +29,10 @@ const VaultTransactionHistory = observer(
     const [page, setPage] = useState(0);
 
     return (
+      <div className='mt-10'>
+
+<div className="text-sm">Vault User History</div>
       <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
-        <div className="text-xs text-gray-400">Vault User History</div>
         <div className="mt-2">
           <div className="md:grid hidden md:grid-cols-4 p-1">
             <div>Date</div>
@@ -118,6 +120,7 @@ const VaultTransactionHistory = observer(
             </svg>
           </div>
         </div>
+      </div>
       </div>
     );
   },

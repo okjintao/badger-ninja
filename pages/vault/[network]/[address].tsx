@@ -111,7 +111,7 @@ const VaultInformation = observer((): JSX.Element => {
       {version === VaultVersion.v1_5 && (
         <VaultHarvestHealth vault={requestedVault} />
       )}
-      <div className="mt-4 mx-2 lg:mx-0 grid grid-cols-1 md:grid-cols-2">
+      <div className="mt-10 mx-2 lg:mx-0 grid grid-cols-1 md:grid-cols-2">
         <VaultAprSources vault={requestedVault} />
         <VaultSchedules vault={requestedVault} schedules={schedules} />
       </div>
