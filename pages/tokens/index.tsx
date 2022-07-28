@@ -16,7 +16,7 @@ function Tokens(): JSX.Element {
     ? Object.values(protocol.networks)
     : [];
   return (
-    <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto">
+    <div className="flex flex-grow flex-col items-center w-full md:w-11/12 text-white pb-10 mx-auto">
       <div className="my-2 w-full">
         {networks.map((n) => {
           const { name, tokens, prices } = n;

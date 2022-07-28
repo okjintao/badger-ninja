@@ -18,7 +18,7 @@ function VaultHarvestItem({ harvestInformation }: Props): JSX.Element {
   });
   const href = `/vault/${network}/${address}`;
   return (
-    <div className="my-1 w-full xl:w-2/3">
+    <div className="my-1 w-full lg:w-10/12">
       <Link href={href} passHref>
         <div className="flex bg-card rounded-lg p-1 lg:p-3 cursor-pointer mx-2">
           <div className="flex flex-col items-center justify-center w-16 md:w-24 m-2">

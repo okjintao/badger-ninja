@@ -1,8 +1,6 @@
 import {
-  ChartGranularity,
   ChartTimeFrame,
   formatBalance,
-  keyBy,
   Network,
 } from '@badger-dao/sdk';
 import {
@@ -13,7 +11,6 @@ import {
 } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { BigNumber, ethers } from 'ethers';
 import { makeAutoObservable } from 'mobx';
-import config from 'next/config';
 import { RewardType } from '../enums/reward-type.enum';
 import { VaultHarvestInfo } from '../interfaces/vault-harvest-info.interface';
 import { VaultProps } from '../pages/vault/[network]/[address]';
@@ -61,7 +58,7 @@ export class VaultStore {
     ] = await Promise.all([
       api.loadVaultChart(
         address,
-        ChartTimeFrame.Month,
+        ChartTimeFrame.Max,
         network,
       ),
       api.loadSchedule(address, true, network),
