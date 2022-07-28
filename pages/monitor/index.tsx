@@ -5,8 +5,11 @@ import VaultHarvestItem from '../../components/VaultHarvestItem';
 import { StoreContext } from '../../store/StoreContext';
 
 const VaultMonitor = observer((): JSX.Element => {
-  const { protocol: { vaultHarviestSummaries } } = useContext(StoreContext);
-  const { alertVaults, borderlineVaults, healthyVaults} = vaultHarviestSummaries;
+  const {
+    protocol: { vaultHarviestSummaries },
+  } = useContext(StoreContext);
+  const { alertVaults, borderlineVaults, healthyVaults } =
+    vaultHarviestSummaries;
 
   return (
     <div className="flex flex-grow flex-col items-center w-full text-white mt-4">

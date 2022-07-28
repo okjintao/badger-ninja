@@ -1,8 +1,8 @@
 import { Currency, Network, ONE_MIN_MS, VaultState, VaultVersion } from '@badger-dao/sdk';
 import { makeAutoObservable } from 'mobx';
 import { NetworkSummary } from '../interfaces/network-summary.interface';
+import { VaultHarvestSummaries } from '../interfaces/vault-harvest-summaries.interface';
 import { VaultHarvestSummary } from '../interfaces/vault-harvest-summary.interface';
-import { VaultHarvestSummaries } from '../pages/monitor/interfaces/vault-harvest-summaries.interface';
 import { RootStore } from './RootStore';
 
 export class ProtocolStore {
