@@ -68,7 +68,7 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
 
   return (
     <div className="mt-8">
-      <div className="flex justify-between">
+      <div className="flex justify-between mx-2 lg:mx-0 ">
         <div className="flex flex-col">
           <div className="text-2xl text-white">
             {protocol} - {name} - ${value.toLocaleString()}

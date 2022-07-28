@@ -1,6 +1,8 @@
-import { Currency, Network, ONE_MIN_MS, VaultState } from '@badger-dao/sdk';
+import { Currency, Network, ONE_MIN_MS, VaultState, VaultVersion } from '@badger-dao/sdk';
 import { makeAutoObservable } from 'mobx';
 import { NetworkSummary } from '../interfaces/network-summary.interface';
+import { VaultHarvestSummary } from '../interfaces/vault-harvest-summary.interface';
+import { VaultHarvestSummaries } from '../pages/monitor/interfaces/vault-harvest-summaries.interface';
 import { RootStore } from './RootStore';
 
 export class ProtocolStore {
@@ -22,6 +24,11 @@ export class ProtocolStore {
       return [n, summary];
     }),
   );
+  public vaultHarviestSummaries: VaultHarvestSummaries = {
+    alertVaults: [],
+    borderlineVaults: [],
+    healthyVaults: [],
+  };
 
   constructor(private store: RootStore) {
     makeAutoObservable(this);
@@ -57,6 +64,52 @@ export class ProtocolStore {
         this.networks[network].prices = prices;
       } catch {} // some network are not supported
     }));
+    this.vaultHarviestSummaries = this.evaluateVaultHarvests();
     this.initialized = true;
+  }
+
+  private evaluateVaultHarvests() {
+    const alertVaults: VaultHarvestSummary[] = [];
+    const borderlineVaults: VaultHarvestSummary[] = [];
+    const healthyVaults: VaultHarvestSummary[] = [];
+
+    for (const [network, summary] of Object.entries(this.networks)) {
+      const { vaults } = summary;
+
+      const networkName = network
+        .split('-')
+        .map((i) => i.charAt(0).toUpperCase() + i.slice(1))
+        .join(' ');
+      vaults
+        .filter(
+          (v) =>
+            v.state !== VaultState.Discontinued &&
+            v.version === VaultVersion.v1_5,
+        )
+        .forEach((v) => {
+          const summary: VaultHarvestSummary = {
+            network: network as Network,
+            networkName,
+            name: v.name,
+            yieldProjection: v.yieldProjection,
+            address: v.vaultToken,
+          };
+          const { harvestValue, yieldValue } = v.yieldProjection;
+          const harvestHealth = (harvestValue / yieldValue) * 100;
+          if (harvestHealth >= 97) {
+            healthyVaults.push(summary);
+          } else if (harvestHealth >= 94) {
+            borderlineVaults.push(summary);
+          } else if (harvestHealth < 94) {
+            alertVaults.push(summary);
+          }
+        });
+    }
+
+    return {
+      alertVaults,
+      borderlineVaults,
+      healthyVaults,
+    };
   }
 }

@@ -43,7 +43,7 @@ const Landing = observer((): JSX.Element => {
   const networksByTVL = allNetworks.sort((a, b) => b.tvl - a.tvl);
 
   return (
-    <div className="flex flex-grow flex-col items-center w-full md:w-5/6 text-white pb-10 mx-auto pt-8">
+    <div className="flex flex-grow flex-col items-center w-full md:w-11/12 text-white pb-10 mx-auto pt-8">
       <div className="grid grid-cols-4 w-full pb-6">
         <div className="bg-card flex flex-col m-2 px-4 py-8 rounded-lg">
           <span className="text-xs text-gray-400">Vaults</span>
