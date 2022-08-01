@@ -49,7 +49,7 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
           <div className="flex flex-col">
             <div className="text-xs">Pending Yield ({protocol})</div>
             <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
-              {yieldTokens.map((t) => (
+              {yieldTokens.filter((t) => t.balance > 0).map((t) => (
                 <VaultStatistic
                   key={`yield-${t.address}`}
                   title={t.symbol}
@@ -69,7 +69,7 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
           <div className="flex flex-col">
             <div className="text-xs">Pending Harvest</div>
             <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
-              {harvestTokens.map((t) => (
+              {harvestTokens.filter((t) => t.balance > 0).map((t) => (
                 <VaultStatistic
                   key={`harvest-${t.address}`}
                   title={t.symbol}

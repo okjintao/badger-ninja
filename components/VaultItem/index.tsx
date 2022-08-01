@@ -48,7 +48,7 @@ function VaultItem({ vault }: Props): JSX.Element {
       <span>{yieldDisplay}</span>
       <div className="hidden lg:block">
         {lastHarvest > 0
-          ? new Date(lastHarvest * 1000).toLocaleString()
+          ? new Date(lastHarvest).toLocaleString()
           : 'Unknown'}
       </div>
     </div>
