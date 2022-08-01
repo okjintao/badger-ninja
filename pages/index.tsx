@@ -1,12 +1,9 @@
-import { BadgerAPI, Currency, Network, VaultState } from '@badger-dao/sdk';
+import { VaultState } from '@badger-dao/sdk';
 import { observer } from 'mobx-react-lite';
-import { GetServerSidePropsResult, GetStaticPropsResult } from 'next';
 import Link from 'next/link';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 
 import VaultItem from '../components/VaultItem';
-import { NetworkSummary } from '../interfaces/network-summary.interface';
-import getStore from '../store';
 import { StoreContext } from '../store/StoreContext';
 
 interface Props {

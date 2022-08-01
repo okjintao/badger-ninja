@@ -41,7 +41,7 @@ export class ProtocolStore {
     }
     const { sdk: { api } } = this.store;
     await Promise.all(Object.values(Network).map(async (network) => {
-      if (network === Network.Local || network == Network.Optimism) {
+      if (network === Network.Local || network == Network.Optimism || network === Network.Avalanche) {
         return;
       }
 

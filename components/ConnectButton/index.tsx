@@ -15,7 +15,6 @@ const ConnectButton = observer((): JSX.Element => {
   useEffect(() => {
     async function updateSdk() {
       if (library && account) {
-        console.log({ library, account });
         await store.user.updateProvider(library);
       }
     }
