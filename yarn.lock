@@ -265,10 +265,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@badger-dao/sdk@^1.16.5":
-  version "1.16.5"
-  resolved "https://registry.yarnpkg.com/@badger-dao/sdk/-/sdk-1.16.5.tgz#8d6277cd495b1dbdcc1a9d902cb9c0c2821b88be"
-  integrity sha512-l8PjKjwvhNve0JQCMil3rq8AECFdItYAcwO+Ip772ojsaSf9FHglGzdiTRA+jsqi65SzYVcVQsDTpWzUh8+xhg==
+"@badger-dao/sdk@^1.16.7":
+  version "1.16.7"
+  resolved "https://registry.yarnpkg.com/@badger-dao/sdk/-/sdk-1.16.7.tgz#6885d5659f049e198b1fefd22678e7d39396ad2f"
+  integrity sha512-U6IUsMKIsYT1mMAdHcefMj0B/86AE11sfBaFb2v+qzCfxmV58MsKyStBICavt7Hr5Svto59AjraoL8qrZN3E6Q==
   dependencies:
     "@0xsequence/indexer" "0.36.8"
     "@0xsequence/multicall" "0.36.8"

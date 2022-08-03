@@ -12,8 +12,7 @@ export class UserStore {
   }
 
   async updateProvider(provider: Web3Provider) {
-    // there is a bug where we can't dynamically update sdk atm
-    this.store.sdk = new BadgerSDK({ network: CHAIN_ID, provider });
+    this.store.sdk = new BadgerSDK({ network: CHAIN_ID, provider, baseURL: 'https://staging-api.badger.com', });
     await this.store.sdk.ready();
   }
 }
