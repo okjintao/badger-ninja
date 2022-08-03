@@ -49,18 +49,20 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
           <div className="flex flex-col">
             <div className="text-xs">Pending Yield ({protocol})</div>
             <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
-              {yieldTokens.filter((t) => t.balance > 0).map((t) => (
-                <VaultStatistic
-                  key={`yield-${t.address}`}
-                  title={t.symbol}
-                  value={t.balance.toFixed(5)}
-                  subtext={
-                    <div className="text-xs text-gray-400">
-                      ${t.value.toFixed(2)}
-                    </div>
-                  }
-                />
-              ))}
+              {yieldTokens
+                .filter((t) => t.balance > 0)
+                .map((t) => (
+                  <VaultStatistic
+                    key={`yield-${t.address}`}
+                    title={t.symbol}
+                    value={t.balance.toFixed(5)}
+                    subtext={
+                      <div className="text-xs text-gray-400">
+                        ${t.value.toFixed(2)}
+                      </div>
+                    }
+                  />
+                ))}
             </div>
             <div className="text-xs mt-2">
               Total: {yieldValue.toFixed(2)} ({yieldApr.toFixed(2)}% APR)
@@ -69,18 +71,20 @@ function VaultHarvestHealth({ vault }: Props): JSX.Element {
           <div className="flex flex-col">
             <div className="text-xs">Pending Harvest</div>
             <div className="grid grid-cols-1 md:grid-cols-2 mt-2">
-              {harvestTokens.filter((t) => t.balance > 0).map((t) => (
-                <VaultStatistic
-                  key={`harvest-${t.address}`}
-                  title={t.symbol}
-                  value={t.balance.toFixed(5)}
-                  subtext={
-                    <div className="text-xs text-gray-400">
-                      ${t.value.toFixed(2)}
-                    </div>
-                  }
-                />
-              ))}
+              {harvestTokens
+                .filter((t) => t.balance > 0)
+                .map((t) => (
+                  <VaultStatistic
+                    key={`harvest-${t.address}`}
+                    title={t.symbol}
+                    value={t.balance.toFixed(5)}
+                    subtext={
+                      <div className="text-xs text-gray-400">
+                        ${t.value.toFixed(2)}
+                      </div>
+                    }
+                  />
+                ))}
             </div>
             <div className="text-xs mt-2">
               Total: {harvestValue.toFixed(2)} ({harvestApr.toFixed(2)}% APR)
