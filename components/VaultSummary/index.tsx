@@ -74,7 +74,7 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
             {protocol} - {name} - ${value.toLocaleString()}
           </div>
           <span className="text-shallow text-sm">
-            Last Harvest: {new Date(lastHarvest * 1000).toLocaleString()}
+            Last Harvest: {new Date(lastHarvest).toLocaleString()}
           </span>
         </div>
 
