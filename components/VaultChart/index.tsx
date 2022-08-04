@@ -1,7 +1,12 @@
-import { VaultDTO, VaultSnapshot, VaultVersion } from '@badger-dao/sdk';
+import {
+  ChartTimeFrame,
+  VaultDTO,
+  VaultSnapshot,
+  VaultVersion,
+} from '@badger-dao/sdk';
 import { format } from 'd3-format';
 import { timeFormat } from 'd3-time-format';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Area,
   ComposedChart,
@@ -13,17 +18,24 @@ import {
   YAxis,
 } from 'recharts';
 
+import { ChartValueType } from '../../store/enums/chart-value-type.enum';
+
 interface Props {
   chartData: VaultSnapshot[];
   vault: VaultDTO;
+  timeframe: ChartTimeFrame;
+  setTimeframe: (timeframe: ChartTimeFrame) => void;
 }
 
 const valueFormatter = format('^$.3s');
+const balanceFormatter = format('^.3s');
 
 function legendFormatter(value: string): string {
   switch (value) {
     case 'value':
       return 'TVL';
+    case 'balance':
+      return 'Vault Balance';
     case 'yieldApr':
       return 'Spot APR';
     case 'harvestApr':
@@ -37,6 +49,8 @@ function tooltipFormatter(value: number, name: string): [string, string] {
   switch (name) {
     case 'value':
       return [valueFormatter(value), 'TVL'];
+    case 'balance':
+      return [balanceFormatter(value), 'Vault Balance'];
     case 'yieldApr':
       return [`${value.toFixed(2)}%`, 'Spot'];
     case 'harvestApr':
@@ -46,7 +60,14 @@ function tooltipFormatter(value: number, name: string): [string, string] {
   }
 }
 
-function VaultChart({ chartData, vault }: Props): JSX.Element {
+function VaultChart({
+  chartData,
+  vault,
+  timeframe,
+  setTimeframe,
+}: Props): JSX.Element {
+  const [valueType, setValueType] = useState(ChartValueType.USD);
+
   if (chartData.length === 0) {
     return (
       <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
@@ -89,42 +110,95 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
   return (
     <div className="mt-10">
       <div className="text-sm mb-4">Vault History</div>
-      <div className="bg-card p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
+      <div className="bg-card px-3 md:px-4 rounded-lg mx-2 py-6 lg:mx-0">
+        <div className="flex justify-between">
+          <div className="flex rounded-lg bg-cave p-2 mb-4">
+            {Object.values(ChartValueType).map((t, i) => {
+              const isActive = valueType === t;
+              return (
+                <div
+                  key={t}
+                  onClick={() => setValueType(t)}
+                  className={`mx-1 cursor-pointer px-1 ${
+                    isActive ? 'bg-badger text-cave rounded-md ' : ''
+                  }${i === 0 ? 'ml-2' : 'mr-2'}`}
+                >
+                  {t}
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex rounded-lg bg-cave p-2 mb-4">
+            {Object.values(ChartTimeFrame).map((t, i) => {
+              const isActive = timeframe === t;
+              return (
+                <div
+                  key={t}
+                  onClick={() => setTimeframe(t)}
+                  className={`cursor-pointer px-1 ${
+                    isActive ? 'bg-badger text-cave rounded-md ' : ''
+                  }${
+                    i === 0
+                      ? 'ml-2'
+                      : i === Object.values(ChartTimeFrame).length - 1
+                      ? 'mr-2'
+                      : 'mx-1'
+                  }`}
+                >
+                  {t}
+                </div>
+              );
+            })}
+          </div>
+        </div>
         <ResponsiveContainer height={350}>
           <ComposedChart data={chartData}>
             <Legend formatter={legendFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
               labelFormatter={timeFormat('%B %d, %Y')}
+              contentStyle={{
+                background: '#262626',
+                borderRadius: '10px',
+                color: 'rgba(255, 255, 255, 0.6)',
+              }}
             />
             <XAxis
               dataKey="timestamp"
               type="number"
               domain={['dataMin', 'dataMax']}
               tickFormatter={timeFormat('%m-%d')}
-              tickLine={false}
-              axisLine={false}
               style={{ fill: 'white' }}
               tickCount={10}
             />
-            <YAxis
-              dataKey="value"
-              yAxisId="value"
-              axisLine={false}
-              tickLine={false}
-              type="number"
-              domain={['auto', 'auto']}
-              tickCount={10}
-              minTickGap={50}
-              tickFormatter={valueFormatter}
-              style={{ fill: 'white' }}
-            />
+            {valueType === ChartValueType.USD && (
+              <YAxis
+                dataKey="value"
+                yAxisId="value"
+                type="number"
+                domain={['auto', 'auto']}
+                tickCount={10}
+                minTickGap={50}
+                tickFormatter={valueFormatter}
+                style={{ fill: 'white' }}
+              />
+            )}
+            {valueType === ChartValueType.Balance && (
+              <YAxis
+                dataKey="balance"
+                yAxisId="balance"
+                type="number"
+                domain={['auto', 'auto']}
+                tickCount={10}
+                minTickGap={50}
+                tickFormatter={balanceFormatter}
+                style={{ fill: 'white' }}
+              />
+            )}
             <YAxis
               dataKey="apr"
               yAxisId="yieldApr"
               orientation="right"
-              axisLine={false}
-              tickLine={false}
               type="number"
               domain={[minYield * 0.95, maxYield * 1.05]}
               tickCount={10}
@@ -132,14 +206,26 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
               tickFormatter={(v: number) => `${v.toFixed(1)}%`}
               style={{ fill: 'white' }}
             />
-            <Area
-              type="monotone"
-              dataKey="value"
-              fill="rgba(29, 114, 255, 0.1)"
-              stroke="#1D72FF"
-              yAxisId="value"
-              strokeWidth={2}
-            />
+            {valueType === ChartValueType.USD && (
+              <Area
+                type="monotone"
+                dataKey="value"
+                fill="rgba(29, 114, 255, 0.1)"
+                stroke="#1D72FF"
+                yAxisId="value"
+                strokeWidth={2}
+              />
+            )}
+            {valueType === ChartValueType.Balance && (
+              <Area
+                type="monotone"
+                dataKey="balance"
+                fill="rgba(29, 114, 255, 0.1)"
+                stroke="#1D72FF"
+                yAxisId="balance"
+                strokeWidth={2}
+              />
+            )}
             <Line
               type="monotone"
               dataKey="apr"
@@ -147,6 +233,7 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
               stroke="#E2652B"
               yAxisId="yieldApr"
               strokeWidth={1.5}
+              dot={false}
             />
             {version === VaultVersion.v1_5 && (
               <>
@@ -157,6 +244,7 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
                   stroke="gray"
                   yAxisId="yieldApr"
                   strokeWidth={1.5}
+                  dot={false}
                 />
                 <Line
                   type="monotone"
@@ -165,6 +253,7 @@ function VaultChart({ chartData, vault }: Props): JSX.Element {
                   stroke="#3bba9c"
                   yAxisId="yieldApr"
                   strokeWidth={1.5}
+                  dot={false}
                 />
               </>
             )}

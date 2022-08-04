@@ -2,8 +2,7 @@ import { Network, VaultDTO } from '@badger-dao/sdk';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useState } from 'react';
 
-import { VaultHarvestInfo } from '../../interfaces/vault-harvest-info.interface';
-import { VaultTransfer } from '../../interfaces/vault-transfer.interface';
+import { VaultTransfer } from '../../store/interfaces/vault-transfer.interface';
 import { StoreContext } from '../../store/StoreContext';
 import { getChainExplorer, shortenAddress } from '../../utils';
 
@@ -30,7 +29,7 @@ const VaultTransactionHistory = observer(
 
     return (
       <div className="mt-10">
-        <div className="text-sm">Vault User History</div>
+        <div className="text-sm">Vault Token Transfers</div>
         <div className="bg-card mt-4 p-3 md:p-4 rounded-lg mx-2 lg:mx-0">
           <div className="mt-2">
             <div className="md:grid hidden md:grid-cols-4 p-1">
@@ -45,8 +44,8 @@ const VaultTransactionHistory = observer(
                 return (
                   <div key={`${t.hash}-${i}`} className="grid grid-cols-1">
                     <div className="grid md:grid-cols-4 p-1 rounded-lg">
-                      <div>{t.date}</div>
-                      <div>{t.transferType}</div>
+                      <div>{new Date(t.date * 1000).toLocaleString()}</div>
+                      <div>{t.type}</div>
                       <div>
                         {t.amount.toLocaleString()} (
                         {formatter.format(prices[vault.vaultToken] * t.amount)})
