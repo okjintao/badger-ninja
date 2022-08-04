@@ -1,8 +1,8 @@
-import { TransferType } from "../enums/transfer-type.enum";
+import { TransferType } from '../enums/transfer-type.enum';
 
 export interface VaultTransfer {
   amount: number;
-  date: string;
+  date: number;
   from: string;
   hash: string;
   to: string;

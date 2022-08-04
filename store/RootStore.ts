@@ -26,7 +26,6 @@ export class RootStore {
 
   async updateData() {
     await this.protocol.loadProtocolData();
-    await this.vaults.updateVaults();
     this.updatedAt = Date.now();
   }
 }
