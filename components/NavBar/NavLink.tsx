@@ -9,7 +9,7 @@ interface Props {
 
 function NavLink({ href, text }: Props): JSX.Element {
   const router = useRouter();
-  const isActive = router.asPath === href;
+  const isActive = router.asPath === href || router.asPath.includes(href);
   return (
     <div
       className={`flex items-center justify-center mt-1 px-2${

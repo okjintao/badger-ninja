@@ -1,19 +1,25 @@
 import {
   ChartTimeFrame,
   formatBalance,
+  gqlGenT,
   Network,
+  VaultSnapshot,
 } from '@badger-dao/sdk';
 import {
   Transfer_OrderBy,
   OrderDirection,
   SettHarvest_OrderBy,
   BadgerTreeDistribution_OrderBy,
+  TransferFragment,
 } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { BigNumber, ethers } from 'ethers';
 import { makeAutoObservable } from 'mobx';
+import { stringify } from 'querystring';
 import { RewardType } from '../enums/reward-type.enum';
 import { VaultHarvestInfo } from '../interfaces/vault-harvest-info.interface';
 import { VaultProps } from '../pages/vault/[network]/[address]';
+import { TransferType } from './enums/transfer-type.enum';
+import { VaultTransfer } from './interfaces/vault-transfer.interface';
 import { RootStore } from './RootStore';
 
 const BLACKLIST_HARVESTS = [
@@ -22,17 +28,96 @@ const BLACKLIST_HARVESTS = [
 ];
 
 export class VaultStore {
-  private cache: Record<string, VaultProps> = {};
+  public chartData: Record<string, VaultSnapshot[]> = {};
+  public vaultTransfers: Record<string, VaultTransfer[]> = {};
 
   constructor(private store: RootStore) {
     makeAutoObservable(this);
   }
 
-  async loadVaultData(network: Network, address: string): Promise<VaultProps> {
-    const key = `${network}-${address}`;
-    if (this.cache[key]) {
-      return this.cache[key];
+  getVaultChart(network: Network, vault: string, timeframe: ChartTimeFrame): VaultSnapshot[] {
+    const chartKey = `${network}-${vault}-${timeframe}`;
+    return this.chartData[chartKey] ?? [];
+  }
+
+  async updateVaults() {
+    await Promise.all([
+      this.#loadVaultCharts(),
+    ]);
+  }
+
+  async #loadVaultCharts() {
+    const { api } = this.store.sdk;
+    await Promise.all(Object.values(this.store.protocol.networks).map(async (n) => {
+      await Promise.all(n.vaults.map(async (v) => {
+        for (const timeframe of Object.values(ChartTimeFrame)) {
+          const chartKey = `${this.#getVaultKey(n.network, v.vaultToken)}-${timeframe}`;
+          this.chartData[chartKey] = await api.loadVaultChart(v.vaultToken, timeframe, n.network);
+        }
+      }));
+    }));
+  }
+
+  async #loadVaultTransfers(network: Network, address: string): Promise<VaultTransfer[]> {
+    const transferKey = this.#getVaultKey(network, address);
+
+    if (this.vaultTransfers[transferKey]) {
+      return this.vaultTransfers[transferKey];
     }
+
+    const { graph } = this.store.sdk;
+          
+    let vaultTransferEvents: TransferFragment[] = [];
+    let lastTransfer: string | undefined;
+    while (true) {
+      try {
+        if (vaultTransferEvents.length > 500) {
+          break;
+        }
+        const { transfers } = await graph.loadTransfers({
+          first: 100,
+          where: { id_gt: lastTransfer, sett: address.toLowerCase() },
+          orderBy: gqlGenT.Transfer_OrderBy.Id,
+          orderDirection: gqlGenT.OrderDirection.Asc,
+        });
+        if (transfers.length === 0) {
+          break;
+        }
+        lastTransfer = transfers[transfers.length - 1].id;
+        vaultTransferEvents = vaultTransferEvents.concat(transfers);
+      } catch {
+        break;
+      }
+    }
+
+    const { tokens } = this.store.protocol.networks[network];
+    this.vaultTransfers[transferKey] = vaultTransferEvents.map((t) => {
+      const transferType =
+        Number(t.to.id) === 0
+          ? TransferType.Withdraw
+          : Number(t.from.id) === 0
+          ? TransferType.Deposit
+          : TransferType.Transfer;
+      return {
+        from: t.from.id,
+        to: t.to.id,
+        amount: formatBalance(t.amount, tokens[address].decimals),
+        date: new Date(t.timestamp * 1000).toLocaleString(),
+        type: transferType,
+        hash: t.id.split('-')[0],
+      };
+    });
+
+    return this.vaultTransfers[transferKey];
+  }
+
+  #getVaultKey(network: Network, address: string): string {
+    return `${network}-${address}`;
+  }
+
+  async loadVaultData(network: Network, address: string): Promise<VaultProps> {
+    const key = this.#getVaultKey(network, address);
+    
     const { api, graph } = this.store.sdk;
     const { tokens, vaults, prices } = this.store.protocol.networks[network];
 
@@ -50,25 +135,13 @@ export class VaultStore {
     }
 
     const [
-      chartData,
       schedules,
-      { transfers },
+      transfers,
       { settHarvests },
       { badgerTreeDistributions },
     ] = await Promise.all([
-      api.loadVaultChart(
-        address,
-        ChartTimeFrame.Max,
-        network,
-      ),
       api.loadSchedule(address, true, network),
-      graph.loadTransfers({
-        where: {
-          sett: address.toLowerCase(),
-        },
-        orderBy: Transfer_OrderBy.Timestamp,
-        orderDirection: OrderDirection.Desc,
-      }),
+      this.#loadVaultTransfers(network, address),
       graph.loadSettHarvests({
         where: {
           sett: address.toLowerCase(),
@@ -89,23 +162,6 @@ export class VaultStore {
     if (Array.isArray(schedules)) {
       schedules.forEach((s) => (s.token = tokens[s.token].name));
     }
-
-    const vaultTransfers = transfers.map((t) => {
-      const transferType =
-        Number(t.to.id) === 0
-          ? 'Withdraw'
-          : Number(t.from.id) === 0
-          ? 'Deposit'
-          : 'Transfer';
-      return {
-        from: t.from.id,
-        to: t.to.id,
-        amount: formatBalance(t.amount, tokens[address].decimals),
-        date: new Date(t.timestamp * 1000).toLocaleString(),
-        transferType,
-        hash: t.id.split('-')[0],
-      };
-    });
 
     const timestamps = Array.from(
       new Set(settHarvests.map((s) => s.timestamp)),
@@ -199,16 +255,17 @@ export class VaultStore {
         });
     }
 
+    const chartKey = `${network}-${vault.vaultToken}-${ChartTimeFrame.Max}`;
     const result = {
       vault,
-      chartData,
+      chartData: this.chartData[chartKey] ?? [],
       schedules,
-      transfers: vaultTransfers,
+      transfers,
       network,
       prices,
       harvests,
     };
-    this.cache[key] = result;
+    
     return result;
   }
 }
