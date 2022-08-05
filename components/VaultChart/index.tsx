@@ -48,16 +48,16 @@ function legendFormatter(value: string): string {
 function getTimeFormatter(timeframe: ChartTimeFrame) {
   switch (timeframe) {
     case ChartTimeFrame.Day:
-      return timeFormat("%I %p");
+      return timeFormat('%I %p');
     case ChartTimeFrame.Week:
-      return timeFormat("%a %d");
+      return timeFormat('%a %d');
     case ChartTimeFrame.Month:
     case ChartTimeFrame.ThreeMonth:
     case ChartTimeFrame.Year:
     case ChartTimeFrame.YTD:
-      return timeFormat("%b %d");
+      return timeFormat('%b %d');
     default:
-      return timeFormat("%B");
+      return timeFormat('%B');
   }
 }
 
