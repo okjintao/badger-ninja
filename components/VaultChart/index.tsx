@@ -45,6 +45,22 @@ function legendFormatter(value: string): string {
   }
 }
 
+function getTimeFormatter(timeframe: ChartTimeFrame) {
+  switch (timeframe) {
+    case ChartTimeFrame.Day:
+      return timeFormat('%I %p');
+    case ChartTimeFrame.Week:
+      return timeFormat('%a %d');
+    case ChartTimeFrame.Month:
+    case ChartTimeFrame.ThreeMonth:
+    case ChartTimeFrame.Year:
+    case ChartTimeFrame.YTD:
+      return timeFormat('%b %d');
+    default:
+      return timeFormat('%B');
+  }
+}
+
 function tooltipFormatter(value: number, name: string): [string, string] {
   switch (name) {
     case 'value':
@@ -156,7 +172,7 @@ function VaultChart({
             <Legend formatter={legendFormatter} />
             <Tooltip
               formatter={tooltipFormatter}
-              labelFormatter={timeFormat('%B %d, %Y')}
+              labelFormatter={getTimeFormatter(timeframe)}
               contentStyle={{
                 background: '#262626',
                 borderRadius: '10px',
@@ -167,7 +183,7 @@ function VaultChart({
               dataKey="timestamp"
               type="number"
               domain={['dataMin', 'dataMax']}
-              tickFormatter={timeFormat('%m-%d')}
+              tickFormatter={getTimeFormatter(timeframe)}
               style={{ fill: 'white' }}
               tickCount={10}
             />
