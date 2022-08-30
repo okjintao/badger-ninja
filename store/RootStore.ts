@@ -1,5 +1,7 @@
 import BadgerSDK from '@badger-dao/sdk';
 import { makeAutoObservable } from 'mobx';
+
+import { getBadgerApiUrl } from '../config/config.utils';
 import { CHAIN_ID } from '../config/constants';
 import { ProtocolStore } from './ProtocolStore';
 import { UserStore } from './UserStore';
@@ -10,7 +12,7 @@ export class RootStore {
   public sdk = new BadgerSDK({
     network: CHAIN_ID,
     provider: '',
-    baseURL: 'https://staging-api.badger.com',
+    baseURL: getBadgerApiUrl(),
   });
 
   public protocol: ProtocolStore;
