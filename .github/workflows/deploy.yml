@@ -10,4 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Call Deploy Hook
+        env:
+          STAGE: staging
         run: curl ${{ secrets.NINJA_DEPLOY_HOOK }}
