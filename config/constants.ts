@@ -1,5 +1,5 @@
 // general constants
-import { getEnvVar } from './config.utils';
+// import { getEnvVar } from './config.utils';
 import { Stage } from './enums/stage.enum';
 
 // just for now, will raplce wen figure out deployment process

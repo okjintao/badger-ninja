@@ -1,3 +1,4 @@
+import { BADGER_API_PRODUCTION_URL, BADGER_API_STAGING_URL } from './constants';
 import { Stage } from './enums/stage.enum';
 
 export function getEnvVar(envName: string): string {
@@ -17,8 +18,8 @@ export function getEnvVar(envName: string): string {
 
 export function getBadgerApiUrl() {
   if (process.env.STAGE == Stage.Production) {
-    return 'https://api.badger.com/';
+    return BADGER_API_PRODUCTION_URL;
   }
 
-  return 'https://staging-api.badger.com/';
+  return BADGER_API_STAGING_URL;
 }
