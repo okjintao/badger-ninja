@@ -16,7 +16,12 @@ const NavBar = observer((): JSX.Element => {
             className="mr-6 cursor-pointer flex items-center flex-grow"
             onClick={() => window.open('https://app.badger.com')}
           >
-            <Image src={'/icon/badger-head.png'} width={25} height={25} />
+            <Image
+              alt="badger"
+              src={'/icon/badger-head.png'}
+              width={25}
+              height={25}
+            />
           </div>
           <>
             <div className="text-xs text-gray-300 mr-2">
@@ -26,13 +31,23 @@ const NavBar = observer((): JSX.Element => {
               className="mx-1 flex items-center cursor-pointer"
               onClick={() => window.open('https://discord.gg/5S26srvtmC')}
             >
-              <Image src="/icon/discord.svg" width={15} height={15} />
+              <Image
+                alt="discord"
+                src="/icon/discord.svg"
+                width={15}
+                height={15}
+              />
             </div>
             <div
               className="mx-1 flex items-center cursor-pointer"
               onClick={() => window.open('https://twitter.com/badgerdao')}
             >
-              <Image src="/icon/twitter.svg" width={15} height={15} />
+              <Image
+                alt="twitter"
+                src="/icon/twitter.svg"
+                width={15}
+                height={15}
+              />
             </div>
           </>
         </div>
