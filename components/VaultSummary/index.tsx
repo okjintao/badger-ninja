@@ -25,7 +25,6 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
     balance,
     available,
     lastHarvest,
-    version,
     protocol,
     underlyingToken,
     vaultToken,
@@ -40,16 +39,16 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
     aumFee,
   } = strategy;
 
-  const formatter = new Intl.NumberFormat('en-US', {
+  const _formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   });
   const store = useContext(StoreContext);
   const { prices } = store.protocol.networks[network];
-  const underlyingTokenPrice = prices[underlyingToken];
+  const _underlyingTokenPrice = prices[underlyingToken];
 
-  const [vaultBalance, setVaultBalance] = useState(0);
-  const [underlyingBalance, setUnderlyingBalance] = useState(0);
+  const [_vaultBalance, setVaultBalance] = useState(0);
+  const [_underlyingBalance, setUnderlyingBalance] = useState(0);
   useEffect(() => {
     async function fetchBalances() {
       if (store.sdk.address) {
@@ -64,7 +63,7 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
     fetchBalances();
   }, [store.user.address]);
 
-  const stateDisplay = state.charAt(0).toUpperCase() + state.slice(1);
+  const _stateDisplay = state.charAt(0).toUpperCase() + state.slice(1);
 
   return (
     <div className="mt-8">

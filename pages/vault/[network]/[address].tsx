@@ -43,8 +43,6 @@ export const defaultProps: VaultProps = {
   harvests: [],
 };
 
-const PAGE_SIZE = 10;
-
 const VaultInformation = observer((): JSX.Element => {
   const router = useRouter();
   const { network: requestedNetwork, address } = router.query;

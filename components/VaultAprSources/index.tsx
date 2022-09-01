@@ -1,8 +1,6 @@
 import { VaultDTO } from '@badger-dao/sdk';
 import React from 'react';
 
-import VaultStatistic from '../VaultStatistic';
-
 interface Props {
   vault: VaultDTO;
 }
