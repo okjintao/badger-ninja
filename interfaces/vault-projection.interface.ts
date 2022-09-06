@@ -1,4 +1,4 @@
-import { Protocol, VaultStrategy } from "@badger-dao/sdk";
+import { Protocol, VaultStrategy } from '@badger-dao/sdk';
 
 export interface VaultProjection {
   name: string;

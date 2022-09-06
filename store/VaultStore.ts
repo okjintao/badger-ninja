@@ -5,15 +5,9 @@ import {
   Network,
   VaultSnapshot,
 } from '@badger-dao/sdk';
-import {
-  BadgerTreeDistribution_OrderBy,
-  OrderDirection,
-  SettHarvest_OrderBy,
-  TransferFragment,
-} from '@badger-dao/sdk/lib/graphql/generated/badger';
-import { BigNumber, ethers } from 'ethers';
+import { TransferFragment } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { makeAutoObservable } from 'mobx';
-import { RewardType } from '../enums/reward-type.enum';
+
 import { defaultProps, VaultProps } from '../pages/vault/[network]/[address]';
 import { TransferType } from './enums/transfer-type.enum';
 import { VaultTransfer } from './interfaces/vault-transfer.interface';
