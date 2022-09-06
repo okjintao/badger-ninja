@@ -1,6 +1,11 @@
 import { Web3Provider } from '@ethersproject/providers';
+import { ExternalProvider } from '@ethersproject/providers/src.ts/web3-provider';
 
-export function getLibrary(provider: any): Web3Provider {
+interface ExternalProviderExtended extends ExternalProvider {
+  chainId?: number | string;
+}
+
+export function getLibrary(provider: ExternalProviderExtended): Web3Provider {
   const library = new Web3Provider(
     provider,
     typeof provider.chainId === 'number'
