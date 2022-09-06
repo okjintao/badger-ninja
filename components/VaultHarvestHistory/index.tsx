@@ -34,6 +34,7 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
           {harvests
             .slice(harvestPage * PAGE_SIZE, harvestPage + 1 * PAGE_SIZE + 1)
             .map((h, i) => {
+              // debugger;
               return (
                 <div
                   key={`harvest-${h.token}-${i}`}

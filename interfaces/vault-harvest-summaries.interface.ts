@@ -1,4 +1,4 @@
-import { VaultHarvestSummary } from "./vault-harvest-summary.interface";
+import { VaultHarvestSummary } from './vault-harvest-summary.interface';
 
 export interface VaultHarvestSummaries {
   alertVaults: VaultHarvestSummary[];

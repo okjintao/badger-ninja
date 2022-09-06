@@ -6,7 +6,7 @@ on:
 
 jobs:
   cron:
-    name: Inspect the Den
+    name: Deploy to Vercel
     runs-on: ubuntu-latest
     steps:
       - name: Call Deploy Hook
