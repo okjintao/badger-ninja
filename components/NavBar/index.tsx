@@ -17,10 +17,10 @@ const NavBar = observer((): JSX.Element => {
             onClick={() => window.open('https://app.badger.com')}
           >
             <Image
-              alt="badger"
               src={'/icon/badger-head.png'}
               width={25}
               height={25}
+              alt="Badger Logo"
             />
           </div>
           <>
@@ -32,10 +32,10 @@ const NavBar = observer((): JSX.Element => {
               onClick={() => window.open('https://discord.gg/5S26srvtmC')}
             >
               <Image
-                alt="discord"
                 src="/icon/discord.svg"
                 width={15}
                 height={15}
+                alt="Discord Icon"
               />
             </div>
             <div
@@ -43,10 +43,10 @@ const NavBar = observer((): JSX.Element => {
               onClick={() => window.open('https://twitter.com/badgerdao')}
             >
               <Image
-                alt="twitter"
                 src="/icon/twitter.svg"
                 width={15}
                 height={15}
+                alt="Twitter Icon"
               />
             </div>
           </>

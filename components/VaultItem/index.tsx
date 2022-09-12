@@ -1,7 +1,7 @@
-import { VaultDTO, VaultVersion } from '@badger-dao/sdk';
+import { VaultDTOV2, VaultVersion } from '@badger-dao/sdk';
 
 interface Props {
-  vault: VaultDTO;
+  vault: VaultDTOV2;
 }
 
 function VaultItem({ vault }: Props): JSX.Element {

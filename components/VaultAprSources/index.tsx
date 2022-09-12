@@ -1,8 +1,8 @@
-import { VaultDTO } from '@badger-dao/sdk';
+import { VaultDTOV2 } from '@badger-dao/sdk';
 import React from 'react';
 
 interface Props {
-  vault: VaultDTO;
+  vault: VaultDTOV2;
 }
 
 function toAprRange(apy: number, minApr?: number, maxApr?: number) {

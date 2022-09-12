@@ -1,7 +1,7 @@
 import {
   Currency,
   Network,
-  ONE_MIN_MS,
+  ONE_MINUTE_MS,
   VaultState,
   VaultVersion,
 } from '@badger-dao/sdk';
@@ -39,11 +39,11 @@ export class ProtocolStore {
 
   constructor(private store: RootStore) {
     makeAutoObservable(this);
-    setInterval(async () => this.loadProtocolData(), ONE_MIN_MS);
+    setInterval(async () => this.loadProtocolData(), ONE_MINUTE_MS);
   }
 
   async loadProtocolData() {
-    if (Date.now() - this.store.updatedAt < ONE_MIN_MS) {
+    if (Date.now() - this.store.updatedAt < ONE_MINUTE_MS) {
       return;
     }
     const {

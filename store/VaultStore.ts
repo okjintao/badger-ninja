@@ -140,7 +140,7 @@ export class VaultStore {
     const [schedules, transfers, harvests, chartData] = await Promise.all([
       api.loadSchedule(address, true, network),
       this.#loadVaultTransfers(network, address),
-      api.loadVaultHarvests(address, network),
+      api.loadVaultHarvestsV3(address, network),
       this.#loadVaultCharts(network, address, timeframe),
     ]);
 
