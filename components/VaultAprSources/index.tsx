@@ -1,8 +1,8 @@
-import { VaultDTO } from '@badger-dao/sdk';
+import { VaultDTOV3 } from '@badger-dao/sdk';
 import React from 'react';
 
 interface Props {
-  vault: VaultDTO;
+  vault: VaultDTOV3;
 }
 
 function toAprRange(apy: number, minApr?: number, maxApr?: number) {
@@ -12,18 +12,29 @@ function toAprRange(apy: number, minApr?: number, maxApr?: number) {
 }
 
 function VaultAprSources({ vault }: Props): JSX.Element {
-  const { apr, minApr, maxApr } = vault;
-  const currentYieldDisplay = toAprRange(apr, minApr, maxApr);
+  const { apr } = vault;
+
+  const currentYieldDisplay = toAprRange(
+    apr.baseYield,
+    apr.minYield,
+    apr.maxYield,
+  );
 
   let yieldDisplay: React.ReactNode;
-  if (vault.sourcesApy.length > 0) {
-    yieldDisplay = vault.sources.map((s) => (
+  if (vault.apr.sources.length > 0) {
+    yieldDisplay = vault.apr.sources.map((s) => (
       <div
         key={s.name}
         className="text-xs sm:text-sm w-full flex justify-between text-gray-400"
       >
         <div>{s.name}</div>
-        <div>{toAprRange(s.apr, s.minApr, s.maxApr)}</div>
+        <div>
+          {toAprRange(
+            s.performance.baseYield,
+            s.performance.minYield,
+            s.performance.maxYield,
+          )}
+        </div>
       </div>
     ));
   } else {

@@ -9,11 +9,11 @@ interface Props {
 
 function NavLink({ href, text }: Props): JSX.Element {
   const router = useRouter();
-  const isActive = router.asPath === href || router.asPath.includes(href);
+  const isActive = router.asPath === href;
   return (
     <div
-      className={`flex items-center justify-center mt-1 px-2${
-        isActive ? ' border-sea font-semibold border-b-2' : ' mb-0.5'
+      className={`flex items-center font-semibold justify-center mt-1 px-2${
+        isActive ? ' border-sea border-b-2' : ' mb-0.5'
       }`}
     >
       <Link href={href} passHref>
