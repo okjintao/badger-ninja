@@ -22,7 +22,7 @@ function VaultAprSources({ vault }: Props): JSX.Element {
 
   let yieldDisplay: React.ReactNode;
   if (vault.apy.sources.length > 0) {
-    yieldDisplay = vault.apr.sources.map((s) => (
+    yieldDisplay = vault.apy.sources.map((s) => (
       <div
         key={s.name}
         className="text-xs sm:text-sm w-full flex justify-between text-gray-400"
