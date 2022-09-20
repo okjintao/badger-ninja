@@ -12,16 +12,16 @@ function toAprRange(apy: number, minApr?: number, maxApr?: number) {
 }
 
 function VaultAprSources({ vault }: Props): JSX.Element {
-  const { apr } = vault;
+  const { apy } = vault;
 
   const currentYieldDisplay = toAprRange(
-    apr.baseYield,
-    apr.minYield,
-    apr.maxYield,
+    apy.baseYield,
+    apy.minYield,
+    apy.maxYield,
   );
 
   let yieldDisplay: React.ReactNode;
-  if (vault.apr.sources.length > 0) {
+  if (vault.apy.sources.length > 0) {
     yieldDisplay = vault.apr.sources.map((s) => (
       <div
         key={s.name}
