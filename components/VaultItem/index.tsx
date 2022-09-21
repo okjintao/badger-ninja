@@ -1,7 +1,7 @@
-import { VaultDTO, VaultVersion } from '@badger-dao/sdk';
+import { VaultDTOV3, VaultVersion } from '@badger-dao/sdk';
 
 interface Props {
-  vault: VaultDTO;
+  vault: VaultDTOV3;
 }
 
 function VaultItem({ vault }: Props): JSX.Element {
@@ -9,26 +9,23 @@ function VaultItem({ vault }: Props): JSX.Element {
     name,
     value,
     apr,
-    minApr,
-    maxApr,
     yieldProjection: { harvestApr },
     protocol,
     lastHarvest,
     version,
-    sources,
   } = vault;
 
-  let minYield = minApr ?? apr;
-  let maxYield = maxApr ?? apr;
+  let minYield = apr.minYield;
+  let maxYield = apr.maxYield;
 
   if (version === VaultVersion.v1_5) {
-    const boostedSources = sources.filter((s) => s.boostable);
+    const boostedSources = vault.apr.sources.filter((s) => s.boostable);
     const boostedMinApr = boostedSources.reduce(
-      (total, s) => total + s.minApr,
+      (total, s) => total + s.performance.minYield,
       0,
     );
     const boostedMaxApr = boostedSources.reduce(
-      (total, s) => total + s.maxApr,
+      (total, s) => total + s.performance.maxYield,
       0,
     );
     minYield = harvestApr + boostedMinApr;

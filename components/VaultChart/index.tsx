@@ -61,18 +61,18 @@ function getTimeFormatter(timeframe: ChartTimeFrame) {
   }
 }
 
-function tooltipFormatter(value: number, name: string): [string, string] {
+function tooltipFormatter(value: string, name: string): [string, string] {
   switch (name) {
     case 'value':
       return [valueFormatter(value), 'TVL'];
     case 'balance':
       return [balanceFormatter(value), 'Vault Balance'];
     case 'yieldApr':
-      return [`${value.toFixed(2)}%`, 'Spot'];
+      return [`${Number(value).toFixed(2)}%`, 'Spot'];
     case 'harvestApr':
-      return [`${value.toFixed(2)}%`, 'Projected'];
+      return [`${Number(value).toFixed(2)}%`, 'Projected'];
     default:
-      return [`${value.toFixed(2)}%`, 'APR'];
+      return [`${Number(value).toFixed(2)}%`, 'APR'];
   }
 }
 

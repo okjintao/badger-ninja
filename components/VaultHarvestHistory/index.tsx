@@ -1,4 +1,4 @@
-import { Network, VaultEarning } from '@badger-dao/sdk';
+import { Network, YieldEvent } from '@badger-dao/sdk';
 import React, { useState } from 'react';
 
 import { getChainExplorer, shortenAddress } from '../../utils';
@@ -7,7 +7,7 @@ const PAGE_SIZE = 10;
 
 interface Props {
   network: Network;
-  harvests: VaultEarning[];
+  harvests: YieldEvent[];
 }
 
 function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
@@ -41,21 +41,21 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
                   className="grid grid-cols-1 md:grid-cols-6 py-1"
                 >
                   <div className="flex flex-col">
-                    <span>{new Date(h.timestamp * 1000).toLocaleString()}</span>
-                    <div className="text-xs text-shallow">{h.eventType}</div>
+                    <span>{new Date(h.timestamp).toLocaleString()}</span>
+                    <div className="text-xs text-shallow">{h.type}</div>
                   </div>
                   <div>{formatter.format(h.amount)}</div>
                   <div>{h.amount.toFixed(3)}</div>
                   <div>{shortenAddress(h.token)}</div>
-                  <div>{h.estimatedApr?.toFixed(2) || '0'}%</div>
+                  <div>{h.apr?.toFixed(2) || '0'}%</div>
                   <div className="text-sea">
                     <a
                       className="flex"
-                      href={`${getChainExplorer(network)}/tx/${h.amount}`}
+                      href={`${getChainExplorer(network)}/tx/${h.tx}`}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {shortenAddress(h.eventType, 8)}
+                      {shortenAddress(h.tx, 8)}
                       <svg
                         className="ml-2 mt-1"
                         fill="#91CDFF"

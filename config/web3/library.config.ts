@@ -1,5 +1,4 @@
-import { Web3Provider } from '@ethersproject/providers';
-import { ExternalProvider } from '@ethersproject/providers/src.ts/web3-provider';
+import { ExternalProvider, Web3Provider } from '@ethersproject/providers';
 
 interface ExternalProviderExtended extends ExternalProvider {
   chainId?: number | string;
