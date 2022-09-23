@@ -1,10 +1,15 @@
-import { Network, PriceSummary, TokenConfiguration, VaultDTO } from "@badger-dao/sdk";
+import {
+  Network,
+  PriceSummary,
+  TokenConfiguration,
+  VaultDTOV3,
+} from '@badger-dao/sdk';
 
 export interface NetworkSummary {
   name: string;
   network: Network;
   tvl: number;
-  vaults: VaultDTO[];
+  vaults: VaultDTOV3[];
   tokens: TokenConfiguration;
   prices: PriceSummary;
 }

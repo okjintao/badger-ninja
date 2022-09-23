@@ -1,4 +1,5 @@
 import { enableStaticRendering } from 'mobx-react-lite';
+
 import { RootStore } from './RootStore';
 
 const isServer = typeof window === 'undefined';

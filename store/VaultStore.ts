@@ -5,15 +5,9 @@ import {
   Network,
   VaultSnapshot,
 } from '@badger-dao/sdk';
-import {
-  BadgerTreeDistribution_OrderBy,
-  OrderDirection,
-  SettHarvest_OrderBy,
-  TransferFragment,
-} from '@badger-dao/sdk/lib/graphql/generated/badger';
-import { BigNumber, ethers } from 'ethers';
+import { TransferFragment } from '@badger-dao/sdk/lib/graphql/generated/badger';
 import { makeAutoObservable } from 'mobx';
-import { RewardType } from '../enums/reward-type.enum';
+
 import { defaultProps, VaultProps } from '../pages/vault/[network]/[address]';
 import { TransferType } from './enums/transfer-type.enum';
 import { VaultTransfer } from './interfaces/vault-transfer.interface';
@@ -48,7 +42,7 @@ export class VaultStore {
         const chartKey = `${this.#getVaultKey(network, address)}-${timeframe}`;
         this.chartData[chartKey] = await api.loadVaultChart(
           address,
-          timeframe,
+          <ChartTimeFrame>timeframe,
           network,
         );
       }),
@@ -146,7 +140,7 @@ export class VaultStore {
     const [schedules, transfers, harvests, chartData] = await Promise.all([
       api.loadSchedule(address, true, network),
       this.#loadVaultTransfers(network, address),
-      api.loadVaultHarvests(address, network),
+      api.loadVaultHarvestsV3(address, network),
       this.#loadVaultCharts(network, address, timeframe),
     ]);
 

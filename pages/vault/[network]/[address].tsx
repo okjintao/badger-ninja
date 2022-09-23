@@ -5,9 +5,9 @@ import {
   Network,
   PriceSummary,
   VaultDTO,
-  VaultEarning,
   VaultSnapshot,
   VaultVersion,
+  YieldEvent,
 } from '@badger-dao/sdk';
 import { ethers } from 'ethers';
 import { observer } from 'mobx-react-lite';
@@ -31,7 +31,7 @@ export interface VaultProps {
   transfers: VaultTransfer[];
   network: Network;
   prices: PriceSummary;
-  harvests: VaultEarning[];
+  harvests: YieldEvent[];
 }
 
 export const defaultProps: VaultProps = {
@@ -42,8 +42,6 @@ export const defaultProps: VaultProps = {
   prices: {},
   harvests: [],
 };
-
-const PAGE_SIZE = 10;
 
 const VaultInformation = observer((): JSX.Element => {
   const router = useRouter();

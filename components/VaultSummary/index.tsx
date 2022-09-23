@@ -25,11 +25,9 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
     balance,
     available,
     lastHarvest,
-    version,
     protocol,
     underlyingToken,
     vaultToken,
-    state,
     strategy,
   } = vault;
   const {
@@ -40,16 +38,14 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
     aumFee,
   } = strategy;
 
-  const formatter = new Intl.NumberFormat('en-US', {
+  const _formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   });
   const store = useContext(StoreContext);
-  const { prices } = store.protocol.networks[network];
-  const underlyingTokenPrice = prices[underlyingToken];
 
-  const [vaultBalance, setVaultBalance] = useState(0);
-  const [underlyingBalance, setUnderlyingBalance] = useState(0);
+  const [_vaultBalance, setVaultBalance] = useState(0);
+  const [_underlyingBalance, setUnderlyingBalance] = useState(0);
   useEffect(() => {
     async function fetchBalances() {
       if (store.sdk.address) {
@@ -64,8 +60,6 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
     fetchBalances();
   }, [store.user.address]);
 
-  const stateDisplay = state.charAt(0).toUpperCase() + state.slice(1);
-
   return (
     <div className="mt-8">
       <div className="flex justify-between mx-2 lg:mx-0 ">
@@ -76,15 +70,6 @@ const VaultSummary = observer(({ vault, network }: Props): JSX.Element => {
           <span className="text-shallow text-sm">
             Last Harvest: {new Date(lastHarvest).toLocaleString()}
           </span>
-        </div>
-
-        <div className="flex space-x-3 mt-2 lg:mt-0 md:justify-start lg:justify-end lg:ml-5 flex-shrink-0 items-center">
-          <div className="py-2 px-4 rounded-lg shadow-lg cursor-pointer border-badger border text-badger text-sm uppercase">
-            Withdraw
-          </div>
-          <div className="bg-badger py-2 px-4 rounded-lg shadow-lg cursor-pointer text-cave  text-sm uppercase">
-            Deposit
-          </div>
         </div>
       </div>
       <div className="bg-card mt-4 md:mt-8 p-3 md:p-4 rounded-lg mx-2 lg:mx-0 lg:px-10">

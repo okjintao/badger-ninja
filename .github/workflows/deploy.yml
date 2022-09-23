@@ -6,8 +6,10 @@ on:
 
 jobs:
   cron:
-    name: Inspect the Den
+    name: Deploy to Vercel
     runs-on: ubuntu-latest
     steps:
       - name: Call Deploy Hook
+        env:
+          STAGE: staging
         run: curl ${{ secrets.NINJA_DEPLOY_HOOK }}

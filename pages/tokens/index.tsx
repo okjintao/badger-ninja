@@ -1,8 +1,6 @@
-import { GetStaticPropsResult } from 'next';
 import { useContext } from 'react';
 
 import { NetworkSummary } from '../../interfaces/network-summary.interface';
-import getStore from '../../store';
 import { StoreContext } from '../../store/StoreContext';
 import { getChainExplorer } from '../../utils';
 

@@ -1,10 +1,10 @@
-import { VaultDTO } from '@badger-dao/sdk';
+import { VaultDTOV3 } from '@badger-dao/sdk';
 import React from 'react';
 
 import VaultStatistic from '../VaultStatistic';
 
 interface Props {
-  vault: VaultDTO;
+  vault: VaultDTOV3;
 }
 
 function VaultHarvestHealth({ vault }: Props): JSX.Element {

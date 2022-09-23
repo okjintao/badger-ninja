@@ -1,5 +1,6 @@
-import { Currency, Network, ONE_MIN_MS, VaultState, VaultVersion } from '@badger-dao/sdk';
+import { Currency, Network, VaultState, VaultVersion, ONE_MINUTE_MS } from '@badger-dao/sdk';
 import { makeAutoObservable } from 'mobx';
+
 import { NetworkSummary } from '../interfaces/network-summary.interface';
 import { VaultHarvestSummaries } from '../interfaces/vault-harvest-summaries.interface';
 import { VaultHarvestSummary } from '../interfaces/vault-harvest-summary.interface';
@@ -32,38 +33,44 @@ export class ProtocolStore {
 
   constructor(private store: RootStore) {
     makeAutoObservable(this);
-    setInterval(async () => this.loadProtocolData(), ONE_MIN_MS);
+    setInterval(async () => this.loadProtocolData(), ONE_MINUTE_MS);
   }
 
   async loadProtocolData() {
-    if (Date.now() - this.store.updatedAt < ONE_MIN_MS) {
+    if (Date.now() - this.store.updatedAt < ONE_MINUTE_MS) {
       return;
     }
-    const { sdk: { api } } = this.store;
-    await Promise.all(Object.values(Network).map(async (network) => {
-      if (network === Network.Local || network == Network.Optimism || network === Network.Avalanche) {
-        return;
-      }
+    const {
+      sdk: { api },
+    } = this.store;
+    await Promise.all(
+      Object.values(Network).map(async (network) => {
+        if (
+          network === Network.Local ||
+          network == Network.Optimism ||
+          network === Network.Avalanche
+        ) {
+          return;
+        }
 
-      try {
-        const [networkVaults, tokens, prices] = await Promise.all([
-          api.loadVaults(Currency.USD, network),
-          api.loadTokens(),
-          api.loadPrices(
-            Currency.USD,
-            network,),
-        ]);
-        this.networks[network].vaults = networkVaults.filter(
-          (v) => v.state !== VaultState.Discontinued,
-        );
-        this.networks[network].tvl = networkVaults.reduce(
-          (total, v) => (total += v.value),
-          0,
-        );
-        this.networks[network].tokens = tokens;
-        this.networks[network].prices = prices;
-      } catch {} // some network are not supported
-    }));
+        try {
+          const [networkVaults, tokens, prices] = await Promise.all([
+            api.loadVaultsV3(Currency.USD, network),
+            api.loadTokens(network),
+            api.loadPrices(Currency.USD, network),
+          ]);
+          this.networks[network].vaults = networkVaults.filter(
+            (v) => v.state !== VaultState.Discontinued,
+          );
+          this.networks[network].tvl = networkVaults.reduce(
+            (total, v) => (total += v.value),
+            0,
+          );
+          this.networks[network].tokens = tokens;
+          this.networks[network].prices = prices;
+        } catch {} // some network is not supported
+      }),
+    );
     this.vaultHarviestSummaries = this.evaluateVaultHarvests();
     this.initialized = true;
   }
@@ -80,6 +87,7 @@ export class ProtocolStore {
         .split('-')
         .map((i) => i.charAt(0).toUpperCase() + i.slice(1))
         .join(' ');
+
       vaults
         .filter(
           (v) =>

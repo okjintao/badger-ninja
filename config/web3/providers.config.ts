@@ -1,5 +1,6 @@
-import { InjectedConnector } from '@web3-react/injected-connector';
 import { AbstractConnector } from '@web3-react/abstract-connector';
+import { InjectedConnector } from '@web3-react/injected-connector';
+
 import { CHAIN_ID } from '../constants';
 import { ConnectorType } from '../enums/connector-type.enum';
 
