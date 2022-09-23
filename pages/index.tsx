@@ -32,7 +32,7 @@ const Landing = observer((): JSX.Element => {
   const totalValue = allVaults.reduce((total, v) => (total += v.value), 0);
   const totalValueDisplay = `$${totalValue.toLocaleString()}`;
   const valueApr = allVaults.reduce(
-    (total, v) => (total += v.value * v.apr),
+    (total, v) => (total += v.value * v.apr.baseYield),
     0,
   );
   const protocolApr = valueApr / totalValue;
