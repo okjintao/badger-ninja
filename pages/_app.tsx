@@ -72,6 +72,8 @@ function BadgerNinja({ Component, pageProps }: AppProps): JSX.Element {
           property="og:description"
           content="Badger DAO Vault Analytics"
         />
+        <link rel={'icon'} href={'/icon/favicon.ico'} />
+        <link rel="manifest" href={'/manifest.json'} />
       </Head>
       <Web3ReactProvider getLibrary={getLibrary}>
         <StoreProvider value={store}>
