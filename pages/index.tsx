@@ -103,7 +103,15 @@ const Landing = observer((): JSX.Element => {
             <div className="grid w-full mb-6" key={n.network}>
               <div className="flex items-center mb-2">
                 <div className="text-xl mr-6">{n.name}</div>
-                <div className="text-sm font-semibold text-sea">Registry</div>
+                <Link
+                  href={`/registry/${n.network}`}
+                  key={`registry-${n.network}`}
+                  passHref
+                >
+                  <div className="text-sm font-semibold text-sea cursor-pointer">
+                    Registry
+                  </div>
+                </Link>
               </div>
               <div className="bg-slate grid grid-cols-3 lg:grid-cols-4 p-4 shadow-lg rounded-t-lg uppercase text-sm text-shallow">
                 <span>Vault</span>
