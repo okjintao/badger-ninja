@@ -1,4 +1,4 @@
-import BadgerSDK from '@badger-dao/sdk';
+import BadgerSDK, { LogLevel, Network, SDKProvider } from '@badger-dao/sdk';
 import { Web3Provider } from '@ethersproject/providers';
 import { makeAutoObservable } from 'mobx';
 
@@ -13,12 +13,13 @@ export class UserStore {
     makeAutoObservable(this);
   }
 
-  async updateProvider(provider: Web3Provider) {
+  async updateNetwork(provider: SDKProvider, network: Network) {
+    await this.store.sdk.ready();
     this.store.sdk = new BadgerSDK({
-      network: CHAIN_ID,
+      network,
       provider,
       baseURL: getBadgerApiUrl(),
+      logLevel: LogLevel.Debug,
     });
-    await this.store.sdk.ready();
   }
 }

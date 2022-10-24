@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { useContext } from 'react';
 
 import { StoreContext } from '../../store/StoreContext';
-import ConnectButton from '../ConnectButton';
 import NavLink from './NavLink';
 
 const NavBar = observer((): JSX.Element => {
@@ -51,15 +50,10 @@ const NavBar = observer((): JSX.Element => {
             </div>
           </>
         </div>
-        <div className="flex w-full justify-between items-center mt-auto">
-          <div className="flex h-full">
-            <NavLink href="/" text="Overview" />
-            <NavLink href="/monitor" text="Monitor" />
-            <NavLink href="/tokens" text="Tokens" />
-          </div>
-          <div className="mb-2">
-            <ConnectButton />
-          </div>
+        <div className="flex w-full items-center mt-auto">
+          <NavLink href="/" text="Overview" />
+          <NavLink href="/monitor" text="Monitor" />
+          <NavLink href="/tokens" text="Tokens" />
         </div>
       </div>
     </div>

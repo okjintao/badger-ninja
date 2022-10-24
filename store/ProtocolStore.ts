@@ -1,5 +1,15 @@
-import { Currency, Network, VaultState, VaultVersion, ONE_MINUTE_MS } from '@badger-dao/sdk';
+import BadgerSDK, {
+  Currency,
+  Network,
+  VaultState,
+  VaultVersion,
+  ONE_MINUTE_MS,
+  getNetworkConfig,
+  SDKProvider,
+} from '@badger-dao/sdk';
+import { BigNumber } from 'ethers';
 import { makeAutoObservable } from 'mobx';
+import { getBadgerApiUrl } from '../config/config.utils';
 
 import { NetworkSummary } from '../interfaces/network-summary.interface';
 import { VaultHarvestSummaries } from '../interfaces/vault-harvest-summaries.interface';
@@ -7,6 +17,8 @@ import { VaultHarvestSummary } from '../interfaces/vault-harvest-summary.interfa
 import { RootStore } from './RootStore';
 
 export class ProtocolStore {
+  private registryCache: Record<string, Record<string, string>> = {};
+
   public initialized = false;
   public networks: Record<string, NetworkSummary> = Object.fromEntries(
     Object.values(Network).map((n) => {
@@ -30,6 +42,7 @@ export class ProtocolStore {
     borderlineVaults: [],
     healthyVaults: [],
   };
+  public registryEntries: Record<string, string> = {};
 
   constructor(private store: RootStore) {
     makeAutoObservable(this);
@@ -119,5 +132,44 @@ export class ProtocolStore {
       borderlineVaults,
       healthyVaults,
     };
+  }
+
+  async loadRegistry(targetNetwork: Network) {
+    if (this.registryCache[targetNetwork]) {
+      this.registryEntries = this.registryCache[targetNetwork];
+      return;
+    }
+
+    const rpc: Record<string, string> = {
+      [Network.Ethereum]:
+        'https://eth-mainnet.gateway.pokt.network/v1/5f3453978e354ab992c4da79',
+      [Network.Fantom]: 'https://rpc.ftm.tools/',
+      [Network.Arbitrum]: 'https://arb1.arbitrum.io/rpc',
+    };
+
+    const sdk = new BadgerSDK({
+      network: targetNetwork,
+      provider: rpc[targetNetwork],
+      baseURL: getBadgerApiUrl(),
+    });
+    await sdk.ready();
+
+    if (!sdk.registry.hasRegistry()) {
+      return;
+    }
+
+    const { registry } = sdk;
+    const keysCount = await registry.keysCount();
+    if (keysCount > 0) {
+      const iteratee = new Array(keysCount).fill(0);
+      const entries = await Promise.all(
+        iteratee.map(async (_, i) => {
+          const key = await registry.registry.keys(i);
+          const value = await registry.get(key);
+          return [key, value ?? ''];
+        }),
+      );
+      this.registryEntries = Object.fromEntries(entries);
+    }
   }
 }
