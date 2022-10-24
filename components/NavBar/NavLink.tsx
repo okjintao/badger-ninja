@@ -12,7 +12,7 @@ function NavLink({ href, text }: Props): JSX.Element {
   const isActive = router.asPath === href;
   return (
     <div
-      className={`flex items-center font-semibold justify-center mt-1 px-2${
+      className={`flex items-center font-semibold justify-center mt-1 px-2 pb-1${
         isActive ? ' border-sea border-b-2' : ' mb-0.5'
       }`}
     >

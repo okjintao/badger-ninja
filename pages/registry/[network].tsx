@@ -9,7 +9,8 @@ import { getChainExplorer } from '../../utils';
 
 const NetworkRegistry = observer((): JSX.Element => {
   const router = useRouter();
-  const { network: requestedNetwork, address } = router.query;
+  const { network: requestedNetwork } = router.query;
+  const { protocol } = useContext(StoreContext);
 
   let network: Network;
   try {
@@ -18,7 +19,6 @@ const NetworkRegistry = observer((): JSX.Element => {
     network = Network.Ethereum;
   }
 
-  const { protocol } = useContext(StoreContext);
   useEffect(() => {
     async function loadRegistryInformation() {
       await protocol.loadRegistry(network);
@@ -69,7 +69,8 @@ const NetworkRegistry = observer((): JSX.Element => {
               <span>{key}</span>
               <div className="flex flex-row">
                 <a
-                  href={`${getChainExplorer(network)}/address/${address}`}
+                  target="_blank"
+                  href={`${getChainExplorer(network)}/address/${value}`}
                   className="flex text-sea"
                 >
                   <span className="pr-2">{value}</span>

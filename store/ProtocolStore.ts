@@ -5,9 +5,11 @@ import BadgerSDK, {
   VaultVersion,
   ONE_MINUTE_MS,
   getNetworkConfig,
+  SDKProvider,
 } from '@badger-dao/sdk';
 import { BigNumber } from 'ethers';
 import { makeAutoObservable } from 'mobx';
+import { getBadgerApiUrl } from '../config/config.utils';
 
 import { NetworkSummary } from '../interfaces/network-summary.interface';
 import { VaultHarvestSummaries } from '../interfaces/vault-harvest-summaries.interface';
@@ -15,6 +17,8 @@ import { VaultHarvestSummary } from '../interfaces/vault-harvest-summary.interfa
 import { RootStore } from './RootStore';
 
 export class ProtocolStore {
+  private registryCache: Record<string, Record<string, string>> = {};
+
   public initialized = false;
   public networks: Record<string, NetworkSummary> = Object.fromEntries(
     Object.values(Network).map((n) => {
@@ -131,73 +135,30 @@ export class ProtocolStore {
   }
 
   async loadRegistry(targetNetwork: Network) {
-    const { network } = this.store.sdk.config;
-
-    if (network !== targetNetwork) {
-      this.registryEntries = {};
-      const config = getNetworkConfig(targetNetwork);
-      // ethereum is just the injected provider (mm) as all chains are canonically ethereum
-      const { ethereum } = window;
-      // implementation details from:
-      // https://docs.metamask.io/guide/rpc-api.html#other-rpc-methods
-      if (ethereum) {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          await ethereum.request!({
-            method: 'wallet_switchEthereumChain',
-            params: [
-              {
-                chainId: `0x${config.chainId.toString(16)}`,
-              },
-            ],
-          });
-        } catch (err) {
-          // TODO: handle adding networks later
-          // if (err.code === 4001) {
-          //   throw new Error('User rejected request');
-          // }
-          // // This error code indicates that the chain has not been added to MetaMask.
-          // if (err.code === 4902) {
-          //   try {
-          //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          //     await ethereum.request!({
-          //       method: 'wallet_addEthereumChain',
-          //       params: [
-          //         {
-          //           chainId: BigNumber.from(config.chainId).toHexString(),
-          //           chainName: config.name,
-          //           nativeCurrency: {
-          //             name: config.name,
-          //             symbol: config.currencySymbol,
-          //             decimals: 18,
-          //           },
-          //           rpcUrls: [DEFAULT_RPC[config.network]],
-          //           blockExplorerUrls: [config.explorerUrl],
-          //         },
-          //       ],
-          //     });
-          //   } catch {
-          //     throw err;
-          //   }
-          // }
-          console.error(
-            'Unable to change networks, you might be missing target network configuration',
-          );
-        }
-      }
-
-      this.store.user.updateNetwork(targetNetwork);
-    }
-
-    await this.store.sdk.ready();
-    const { network: updatedNetwork } = this.store.sdk.config;
-
-    if (!this.store.sdk.registry.hasRegistry()) {
+    if (this.registryCache[targetNetwork]) {
+      this.registryEntries = this.registryCache[targetNetwork];
       return;
     }
 
-    const { registry } = this.store.sdk;
+    const rpc: Record<string, string> = {
+      [Network.Ethereum]:
+        'https://eth-mainnet.gateway.pokt.network/v1/5f3453978e354ab992c4da79',
+      [Network.Fantom]: 'https://rpc.ftm.tools/',
+      [Network.Arbitrum]: 'https://arb1.arbitrum.io/rpc',
+    };
 
+    const sdk = new BadgerSDK({
+      network: targetNetwork,
+      provider: rpc[targetNetwork],
+      baseURL: getBadgerApiUrl(),
+    });
+    await sdk.ready();
+
+    if (!sdk.registry.hasRegistry()) {
+      return;
+    }
+
+    const { registry } = sdk;
     const keysCount = await registry.keysCount();
     if (keysCount > 0) {
       const iteratee = new Array(keysCount).fill(0);
