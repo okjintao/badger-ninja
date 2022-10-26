@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 
 export const Pagination: <T>() => FC<Props<T>> =
   () =>
@@ -27,6 +27,10 @@ export const Pagination: <T>() => FC<Props<T>> =
       },
       [items],
     );
+
+    useEffect(() => {
+      setPageItems(items.slice(0, perPage));
+    }, [items]);
 
     const ratio = Math.floor(SHOW_PAGES / 2);
 
@@ -83,7 +87,7 @@ export const Pagination: <T>() => FC<Props<T>> =
         : [];
 
     return (
-      <div>
+      <div className={'w-full mx-auto'}>
         {children(pageItems)}
         {pagesToShow.length > 1 && (
           <div className={`flex justify-end items-center text-sm mt-8 mr-4`}>
