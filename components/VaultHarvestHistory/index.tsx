@@ -1,4 +1,4 @@
-import { Network, YieldEvent } from '@badger-dao/sdk';
+import { Network, ONE_DAY_MS, YieldEvent } from '@badger-dao/sdk';
 import React, { useState } from 'react';
 
 import { getChainExplorer, shortenAddress } from '../../utils';
@@ -18,6 +18,11 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
   const maxHarvestPages = harvests.length / PAGE_SIZE - 1;
   const [harvestPage, setHarvestPage] = useState(0);
 
+  function toDays(ms: number): string {
+    const days = ms / ONE_DAY_MS;
+    return days.toFixed() + ' days';
+  }
+
   return (
     <div className="mt-10">
       <div className="text-sm">Vault Harvest History</div>
@@ -34,7 +39,6 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
           {harvests
             .slice(harvestPage * PAGE_SIZE, harvestPage + 1 * PAGE_SIZE + 1)
             .map((h, i) => {
-              // debugger;
               return (
                 <div
                   key={`harvest-${h.token}-${i}`}
@@ -42,9 +46,9 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
                 >
                   <div className="flex flex-col">
                     <span>{new Date(h.timestamp).toLocaleString()}</span>
-                    <div className="text-xs text-shallow">{h.type}</div>
+                    <div className="text-xs text-shallow">{h.type} - {toDays(h.duration)}</div>
                   </div>
-                  <div>{formatter.format(h.amount)}</div>
+                  <div>{formatter.format(h.earned)}</div>
                   <div>{h.amount.toFixed(3)}</div>
                   <div>{shortenAddress(h.token)}</div>
                   <div>{h.apr?.toFixed(2) || '0'}%</div>
