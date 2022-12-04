@@ -46,7 +46,9 @@ function VaultHarvestHistory({ network, harvests }: Props): JSX.Element {
                 >
                   <div className="flex flex-col">
                     <span>{new Date(h.timestamp).toLocaleString()}</span>
-                    <div className="text-xs text-shallow">{h.type} - {toDays(h.duration)}</div>
+                    <div className="text-xs text-shallow">
+                      {h.type} - {toDays(h.duration)}
+                    </div>
                   </div>
                   <div>{formatter.format(h.earned)}</div>
                   <div>{h.amount.toFixed(3)}</div>
